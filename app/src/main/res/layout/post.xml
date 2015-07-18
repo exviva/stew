@@ -4,8 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
-        android:id="@+id/postUrlView"
+    <ImageView
+        android:id="@+id/postImageView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="300dp"
+        android:scaleType="centerCrop"
+        android:layout_margin="16dp" />
+
 </LinearLayout>

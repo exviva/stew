@@ -19,7 +19,7 @@ public class PostsActivity extends Activity {
 
         mPostsView.setHasFixedSize(true);
         mPostsView.setLayoutManager(new LinearLayoutManager(this));
-        mPostsView.setAdapter(new PostsAdapter());
+        mPostsView.setAdapter(new PostsAdapter(this));
     }
 
 }
