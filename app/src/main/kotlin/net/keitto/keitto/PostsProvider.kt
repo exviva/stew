@@ -1,26 +1,32 @@
 package net.keitto.keitto
 
+import android.os.AsyncTask
+import org.jsoup.Jsoup
 import java.util.ArrayList
 
-public class PostsProvider(private val mListener: PostsProvider.Listener) {
+class PostsProvider(private val listener: PostsProvider.Listener) {
 
     public interface Listener {
-        public fun onPostsLoaded(posts: List<Post>)
+        public fun onPostsLoaded(posts: Collection<Post>)
     }
 
     public fun loadPosts() {
-        mListener.onPostsLoaded(POSTS)
+        FetchingTask().execute()
     }
 
-    companion object {
-
-        private val POSTS = object : ArrayList<Post>() {
-            init {
-                add(Post("http://asset-7.soup.io/asset/12310/2641_7b26.jpeg"))
-                add(Post("http://asset-b.soup.io/asset/11263/4660_bdf2_520.jpeg"))
-                add(Post("http://asset-d.soup.io/asset/8685/3796_d822.jpeg"))
-            }
+    private inner class FetchingTask : AsyncTask<Void, Void, Collection<Post>>() {
+        override fun doInBackground(vararg params: Void?): Collection<Post>? {
+            return Jsoup.connect("http://www.soup.io/friends").
+                cookie("soup_user_id", "XXX").
+                get().
+                select(".post_image .imagecontainer img").
+                map { Post(it.attr("src")) }
         }
+
+        override fun onPostExecute(posts: Collection<Post>) {
+            listener.onPostsLoaded(posts)
+        }
+
     }
 
 }

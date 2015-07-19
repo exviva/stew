@@ -6,7 +6,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import net.keitto.keitto.R
 
-public class PostsActivity : Activity() {
+class PostsActivity : Activity() {
 
     private var mPostsView: RecyclerView? = null
 

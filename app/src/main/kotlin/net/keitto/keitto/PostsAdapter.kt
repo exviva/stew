@@ -6,23 +6,21 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-
 import com.squareup.picasso.Picasso
-import net.keitto.keitto.R
 
-public class PostsAdapter(private val mContext: Context) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
+class PostsAdapter(private val context: Context) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val mPostImageView: ImageView
+        val postImageView: ImageView
 
         init {
-            mPostImageView = itemView.findViewById(R.id.postImageView) as ImageView
+            postImageView = itemView.findViewById(R.id.postImageView) as ImageView
         }
 
     }
 
-    private var mPosts: List<Post>? = null
+    private var posts: List<Post>? = null
 
     init {
         PostsProvider(this).loadPosts()
@@ -35,17 +33,17 @@ public class PostsAdapter(private val mContext: Context) : RecyclerView.Adapter<
     }
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
-        val post = mPosts!!.get(i)
+        val post = posts!!.get(i)
 
-        Picasso.with(mContext).load(post.url).into(postViewHolder.mPostImageView)
+        Picasso.with(context).load(post.url).into(postViewHolder.postImageView)
     }
 
     override fun getItemCount(): Int {
-        return mPosts!!.size()
+        return posts?.size() ?: 0
     }
 
-    override fun onPostsLoaded(posts: List<Post>) {
-        mPosts = posts
+    override fun onPostsLoaded(posts: Collection<Post>) {
+        this.posts = posts.toList()
 
         notifyDataSetChanged()
     }

@@ -28,6 +28,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:22.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile 'org.jsoup:jsoup:1.8.2'
 }
 
 buildscript {
