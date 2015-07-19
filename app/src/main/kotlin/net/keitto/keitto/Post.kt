@@ -1,3 +1,5 @@
 package net.keitto.keitto
 
-data class Post(public val url: String)
+import android.net.Uri
+
+data class Post(public val uri: Uri)

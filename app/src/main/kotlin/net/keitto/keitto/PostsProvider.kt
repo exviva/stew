@@ -1,5 +1,6 @@
 package net.keitto.keitto
 
+import android.net.Uri
 import android.os.AsyncTask
 import org.jsoup.Jsoup
 import java.util.ArrayList
@@ -20,7 +21,7 @@ class PostsProvider(private val listener: PostsProvider.Listener) {
                 cookie("soup_user_id", "XXX").
                 get().
                 select(".post_image .imagecontainer img").
-                map { Post(it.attr("src")) }
+                map { Post(Uri.parse(it.attr("src"))) }
         }
 
         override fun onPostExecute(posts: Collection<Post>) {
