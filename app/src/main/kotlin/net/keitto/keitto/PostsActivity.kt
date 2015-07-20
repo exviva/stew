@@ -4,7 +4,6 @@ import android.app.Activity
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import net.keitto.keitto.R
 
 class PostsActivity : Activity() {
 
@@ -19,7 +18,7 @@ class PostsActivity : Activity() {
 
         mPostsView!!.setHasFixedSize(true)
         mPostsView!!.setLayoutManager(LinearLayoutManager(this))
-        mPostsView!!.setAdapter(PostsAdapter(this))
+        mPostsView!!.setAdapter(PostsAdapter())
     }
 
 }

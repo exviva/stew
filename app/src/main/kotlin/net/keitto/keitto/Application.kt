@@ -9,4 +9,5 @@ class Application : android.app.Application() {
 
         Fresco.initialize(this)
     }
+
 }
