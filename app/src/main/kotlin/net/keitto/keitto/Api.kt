@@ -35,12 +35,11 @@ class Api(val application: Application) {
         val connection = connect("/friends")
 
         executeRequest(connection) {
-            val posts = it.select(".post_image").
-                map {
-                    val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
-                    val src = it.select(".imagecontainer img").attr("src")
-                    Post(id, Uri.parse(src))
-                }
+            val posts = it.select(".post_image").map {
+                val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
+                val src = it.select(".imagecontainer img").attr("src")
+                Post(id, Uri.parse(src))
+            }
             listener(posts)
         }
     }
