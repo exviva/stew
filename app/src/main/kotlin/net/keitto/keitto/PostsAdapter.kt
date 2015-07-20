@@ -10,7 +10,7 @@ import android.widget.ImageView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.view.SimpleDraweeView
 
-class PostsAdapter() : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
+class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -27,7 +27,7 @@ class PostsAdapter() : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), Post
     private var posts: List<Post>? = null
 
     init {
-        PostsProvider(this).loadPosts()
+        PostsProvider(this, application).loadPosts()
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
@@ -41,7 +41,7 @@ class PostsAdapter() : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), Post
 
         val controller = Fresco.newDraweeControllerBuilder().setUri(post.uri).setAutoPlayAnimations(true).build()
         postViewHolder.postImageView.setController(controller)
-        postViewHolder.repostButton.setOnClickListener { Api.repost(post) }
+        postViewHolder.repostButton.setOnClickListener { application.api.repost(post) }
     }
 
     override fun getItemCount(): Int {
