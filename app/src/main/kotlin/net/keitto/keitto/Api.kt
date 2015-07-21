@@ -31,8 +31,13 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchPosts(listener: (Collection<Post>) -> Unit) {
-        val connection = connect("/friends")
+    fun fetchPosts(collection: PostCollection, listener: (Collection<Post>) -> Unit) {
+        val path = when (collection) {
+            PostCollection.FRIENDS -> "/friends"
+            PostCollection.FOF -> "/fof"
+        }
+
+        val connection = connect(path)
 
         executeRequest(connection) {
             val posts = it.select(".post_image").map {

@@ -25,9 +25,10 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
     }
 
     private var posts: List<Post>? = null
+    private var collection: PostCollection = PostCollection.FRIENDS
 
     init {
-        PostsProvider(this, application).loadPosts()
+        load()
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
@@ -48,10 +49,25 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
         return posts?.size() ?: 0
     }
 
-    override fun onPostsLoaded(posts: Collection<Post>) {
-        this.posts = posts.toList()
+    override fun onPostsLoaded(collection: PostCollection, posts: Collection<Post>) {
+        if (collection == this.collection) {
+            this.posts = posts.toList()
 
+            notifyDataSetChanged()
+        }
+    }
+
+    fun setCollection(collection: PostCollection) {
+        this.collection = collection
+
+        load()
+    }
+
+    private fun load() {
+        posts = null
         notifyDataSetChanged()
+        val provider = PostsProvider(this, application)
+        provider.loadPosts(collection)
     }
 
 }
