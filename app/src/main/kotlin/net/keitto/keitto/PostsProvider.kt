@@ -4,10 +4,12 @@ class PostsProvider(private val listener: PostsProvider.Listener, private val ap
 
     public interface Listener {
         public fun onPostsLoaded(collection: PostCollection, posts: Collection<Post>)
+        fun onPostsLoadError(): Unit
     }
 
     public fun loadPosts(collection: PostCollection) {
-        application.api.fetchPosts(collection) { listener.onPostsLoaded(collection, it) }
+        val errorListener = { listener.onPostsLoadError() }
+        application.api.fetchPosts(collection, errorListener) { listener.onPostsLoaded(collection, it) }
     }
 
 }

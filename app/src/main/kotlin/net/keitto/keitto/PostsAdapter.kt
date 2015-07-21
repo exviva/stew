@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
@@ -66,7 +67,11 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
             it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
             it.setEnabled(false)
             it.setOnClickListener {
-                application.api.repost(post) { notifyDataSetChanged() }
+                val errorListener = {
+                    notifyDataSetChanged()
+                    showErrorToast()
+                }
+                application.api.repost(post, errorListener) { notifyDataSetChanged() }
                 notifyDataSetChanged()
             }
 
@@ -91,6 +96,11 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
         }
     }
 
+    override fun onPostsLoadError() {
+        activity.setTitle(R.string.network_error)
+        showErrorToast()
+    }
+
     fun setCollection(collection: PostCollection) {
         this.collection = collection
 
@@ -103,6 +113,10 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
         notifyDataSetChanged()
         val provider = PostsProvider(this, application)
         provider.loadPosts(collection)
+    }
+
+    private fun showErrorToast() {
+        Toast.makeText(activity, R.string.network_error_toast, Toast.LENGTH_SHORT).show()
     }
 
 }
