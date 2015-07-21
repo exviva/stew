@@ -6,10 +6,11 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.widget.ArrayAdapter
-import kotlinx.android.synthetic.activity_main.*
+import kotlinx.android.synthetic.activity_main.drawerLayout
+import kotlinx.android.synthetic.activity_main.drawerListView
+import kotlinx.android.synthetic.activity_main.postsView
 
 class MainActivity : Activity() {
 
@@ -22,7 +23,7 @@ class MainActivity : Activity() {
         if (requireCurrentSession()) {
             setContentView(R.layout.activity_main)
 
-            postsAdapter = PostsAdapter(getApplication() as Application)
+            postsAdapter = PostsAdapter(this)
             postsView.setHasFixedSize(true)
             postsView.setLayoutManager(LinearLayoutManager(this))
             postsView.setAdapter(postsAdapter)

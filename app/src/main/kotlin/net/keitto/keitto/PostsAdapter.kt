@@ -1,5 +1,6 @@
 package net.keitto.keitto
 
+import android.app.Activity
 import android.graphics.drawable.Animatable
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -11,7 +12,7 @@ import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
 
-class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
+class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -25,10 +26,13 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
 
     }
 
+    val application: Application
     private var posts: List<Post>? = null
     private var collection: PostCollection = PostCollection.FRIENDS
 
+
     init {
+        application = activity.getApplication() as Application
         load()
     }
 
@@ -47,14 +51,22 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
             setControllerListener(object: BaseControllerListener<ImageInfo>() {
                 override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
                     postViewHolder.repostButton.setEnabled(true)
+                    postViewHolder.postImageView.setOnClickListener {
+                        FullscreenImageActivity.start(activity, post.uri)
+                    }
                 }
             }).
             build()
-        postViewHolder.postImageView.setController(controller)
-        postViewHolder.repostButton.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
-        postViewHolder.repostButton.setEnabled(false)
-        postViewHolder.repostButton.setOnClickListener { application.api.repost(post) }
 
+        postViewHolder.postImageView.let {
+            it.setController(controller)
+            it.setOnClickListener(null)
+        }
+        postViewHolder.repostButton.let {
+            it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
+            it.setEnabled(false)
+            it.setOnClickListener { application.api.repost(post) }
+        }
     }
 
     override fun getItemCount(): Int {

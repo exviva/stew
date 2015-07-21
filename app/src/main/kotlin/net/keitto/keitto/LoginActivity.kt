@@ -3,8 +3,9 @@ package net.keitto.keitto
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
-import kotlinx.android.synthetic.activity_login.*
+import kotlinx.android.synthetic.activity_login.logInButton
+import kotlinx.android.synthetic.activity_login.passwordEditText
+import kotlinx.android.synthetic.activity_login.userNameEditText
 
 class LoginActivity() : Activity() {
 
