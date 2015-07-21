@@ -36,6 +36,16 @@ class Application : android.app.Application() {
             commit()
     }
 
+    fun logOut() {
+        currentSession = null
+        val preferences = getPreferences()
+        preferences.edit().
+            remove("userIdCookie").
+            remove("sessionIdCookie").
+            remove("csrfToken").
+            commit()
+    }
+
     private fun getPreferences() = getSharedPreferences("Application", Context.MODE_PRIVATE)
 
 }
