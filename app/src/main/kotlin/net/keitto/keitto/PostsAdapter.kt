@@ -1,14 +1,15 @@
 package net.keitto.keitto
 
-import android.content.Context
+import android.graphics.drawable.Animatable
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.ImageView
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
+import com.facebook.imagepipeline.image.ImageInfo
 
 class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
@@ -40,11 +41,20 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts!!.get(i)
 
-        val controller = Fresco.newDraweeControllerBuilder().setUri(post.uri).setAutoPlayAnimations(true).build()
+        val controller = Fresco.newDraweeControllerBuilder().
+            setUri(post.uri).
+            setAutoPlayAnimations(true).
+            setControllerListener(object: BaseControllerListener<ImageInfo>() {
+                override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                    postViewHolder.repostButton.setEnabled(true)
+                }
+            }).
+            build()
         postViewHolder.postImageView.setController(controller)
-
         postViewHolder.repostButton.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
+        postViewHolder.repostButton.setEnabled(false)
         postViewHolder.repostButton.setOnClickListener { application.api.repost(post) }
+
     }
 
     override fun getItemCount(): Int {
