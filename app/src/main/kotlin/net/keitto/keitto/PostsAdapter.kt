@@ -89,7 +89,7 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
 
     private fun load() {
         posts = null
-        activity.setTitle("Loading...")
+        activity.setTitle(R.string.loading)
         notifyDataSetChanged()
         val provider = PostsProvider(this, application)
         provider.loadPosts(collection)

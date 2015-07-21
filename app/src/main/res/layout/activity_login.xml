@@ -6,6 +6,7 @@
 
     <EditText
         android:id="@+id/userNameEditText"
+        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
@@ -19,6 +20,6 @@
         android:id="@+id/logInButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Log in" />
+        android:text="@string/log_in" />
 
 </LinearLayout>

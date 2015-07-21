@@ -28,7 +28,7 @@ class MainActivity : Activity() {
             postsView.setLayoutManager(LinearLayoutManager(this))
             postsView.setAdapter(postsAdapter)
 
-            val listItems = getResources().getStringArray(R.array.post_collections) + "Log out"
+            val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
             drawerListView.setAdapter(ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item, listItems))
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 if (position < PostCollection.values().size()) {

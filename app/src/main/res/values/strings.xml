@@ -1,8 +1,12 @@
 <resources>
     <string name="app_name">Keitto</string>
+    <string name="loading">Loading...</string>
+    <string name="log_in">Log in</string>
+    <string name="log_out">Log out</string>
     <string-array name="post_collections">
         <item>Friends</item>
         <item>Friends of friends</item>
         <item>My soup</item>
     </string-array>
+    <string name="repost">Repost</string>
 </resources>

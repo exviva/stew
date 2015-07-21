@@ -16,7 +16,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity" />
+        <activity android:name=".LoginActivity"
+            android:label="@string/log_in" />
+
         <activity android:name=".FullscreenImageActivity"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
 
