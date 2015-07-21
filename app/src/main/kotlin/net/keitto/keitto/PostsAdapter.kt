@@ -76,7 +76,7 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
     override fun onPostsLoaded(collection: PostCollection, posts: Collection<Post>) {
         if (collection == this.collection) {
             this.posts = posts.toList()
-
+            activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
             notifyDataSetChanged()
         }
     }
@@ -89,6 +89,7 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
 
     private fun load() {
         posts = null
+        activity.setTitle("Loading...")
         notifyDataSetChanged()
         val provider = PostsProvider(this, application)
         provider.loadPosts(collection)

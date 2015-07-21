@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Keitto</string>
+    <string-array name="post_collections">
+        <item>Friends</item>
+        <item>Friends of friends</item>
+        <item>My soup</item>
+    </string-array>
 </resources>
