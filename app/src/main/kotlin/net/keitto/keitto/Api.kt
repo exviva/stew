@@ -44,17 +44,23 @@ class Api(val application: Application) {
             val posts = it.select(".post_image").map {
                 val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
                 val src = it.select(".imagecontainer img").attr("src")
-                Post(id, Uri.parse(src))
+                val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
+                Post(id, Uri.parse(src), if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED)
             }
             listener(posts)
         }
     }
 
-    fun repost(post: Post) {
+    fun repost(post: Post, listener: () -> Unit) {
         val connection = connect("/remote/repost").
             method(Connection.Method.POST).
             data("parent_id", post.id.toString())
-        executeRequest(connection, null)
+
+        post.repostState = Post.RepostState.REPOSTING
+        executeRequest(connection) {
+            post.repostState = Post.RepostState.REPOSTED
+            listener()
+        }
     }
 
     private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {
@@ -70,16 +76,14 @@ class Api(val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, listener: ((Document) -> Unit)?) {
+    private fun executeRequest(connection: Connection, listener: ((Document) -> Unit)) {
         val task = object: AsyncTask<Void, Void, Document>() {
             override fun doInBackground(vararg params: Void?): Document {
                 return connection.execute().parse()
             }
 
             override fun onPostExecute(document: Document) {
-                if (listener != null) {
-                    listener(document)
-                }
+                listener(document)
             }
         }
         task.execute()

@@ -50,7 +50,7 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
             setAutoPlayAnimations(true).
             setControllerListener(object: BaseControllerListener<ImageInfo>() {
                 override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                    postViewHolder.repostButton.setEnabled(true)
+                    postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
                     postViewHolder.postImageView.setOnClickListener {
                         FullscreenImageActivity.start(activity, post.uri)
                     }
@@ -65,7 +65,17 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
         postViewHolder.repostButton.let {
             it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
             it.setEnabled(false)
-            it.setOnClickListener { application.api.repost(post) }
+            it.setOnClickListener {
+                application.api.repost(post) { notifyDataSetChanged() }
+                notifyDataSetChanged()
+            }
+
+            val stringId = when (post.repostState) {
+                Post.RepostState.NOT_REPOSTED -> R.string.repost
+                Post.RepostState.REPOSTING -> R.string.reposting
+                Post.RepostState.REPOSTED -> R.string.reposted
+            }
+            it.setText(stringId)
         }
     }
 

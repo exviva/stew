@@ -9,4 +9,6 @@
         <item>My soup</item>
     </string-array>
     <string name="repost">Repost</string>
+    <string name="reposted">Reposted</string>
+    <string name="reposting">Reposting...</string>
 </resources>

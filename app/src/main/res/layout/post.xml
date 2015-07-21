@@ -18,7 +18,6 @@
     <Button
         android:id="@+id/repostButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/repost" />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>
