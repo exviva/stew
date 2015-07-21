@@ -27,12 +27,13 @@ class MainActivity : Activity() {
             postsView.setLayoutManager(LinearLayoutManager(this))
             postsView.setAdapter(postsAdapter)
 
-            val listItems = arrayOf("Friends", "Friends of friends", "Log out")
+            val listItems = arrayOf("Friends", "Friends of friends", "My soup", "Log out")
             drawerListView.setAdapter(ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item, listItems))
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 when (listItems[position]) {
                     "Friends" -> postsAdapter!!.setCollection(PostCollection.FRIENDS)
                     "Friends of friends" -> postsAdapter!!.setCollection(PostCollection.FOF)
+                    "My soup" -> postsAdapter!!.setCollection(PostCollection.ME)
                     "Log out" -> logOut()
                 }
                 drawerLayout.closeDrawers()

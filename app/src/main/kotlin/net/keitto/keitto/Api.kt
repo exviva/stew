@@ -10,12 +10,12 @@ import kotlin.text.Regex
 class Api(val application: Application) {
 
     fun logIn(userName: String, password: String, listener: (String, String, String) -> Unit) {
-        val loginPageConnection = connect("/login", true)
+        val loginPageConnection = connect("/login", useSsl = true)
         executeRequest(loginPageConnection) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")
             val authenticityToken = it.select("input[name=authenticity_token]").attr("value")
 
-            val connection = connect("/login", true).
+            val connection = connect("/login", useSsl = true).
                 method(Connection.Method.POST).
                 cookie("soup_session_id", sessionId).
                 data("login", userName).
@@ -35,9 +35,10 @@ class Api(val application: Application) {
         val path = when (collection) {
             PostCollection.FRIENDS -> "/friends"
             PostCollection.FOF -> "/fof"
+            PostCollection.ME -> "/"
         }
-
-        val connection = connect(path)
+        val subdomain = if (collection == PostCollection.ME) application.currentSession!!.userName else null
+        val connection = connect(path, subdomain)
 
         executeRequest(connection) {
             val posts = it.select(".post_image").map {
@@ -56,8 +57,8 @@ class Api(val application: Application) {
         executeRequest(connection, null)
     }
 
-    private fun connect(path: String, useSsl: Boolean = false): Connection {
-        val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://www.soup.io${path}")
+    private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {
+        val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io${path}")
         val currentSession = application.currentSession
 
         if (currentSession != null) {

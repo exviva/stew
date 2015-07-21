@@ -17,19 +17,21 @@ class Application : android.app.Application() {
 
     private fun restoreCurrentSession() {
         val preferences = getPreferences()
+        val userName = preferences.getString("userName", null)
         val userIdCookie = preferences.getString("userIdCookie", null)
         val sessionIdCookie = preferences.getString("sessionIdCookie", null)
         val csrfToken = preferences.getString("csrfToken", null)
 
-        if (userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
-            setCurrentSession(userIdCookie, sessionIdCookie, csrfToken)
+        if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
+            setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
         }
     }
 
-    fun setCurrentSession(userIdCookie: String, sessionIdCookie: String, csrfToken: String) {
-        currentSession = CurrentSession(userIdCookie, sessionIdCookie, csrfToken)
+    fun setCurrentSession(userName: String, userIdCookie: String, sessionIdCookie: String, csrfToken: String) {
+        currentSession = CurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
         val preferences = getPreferences()
         preferences.edit().
+            putString("userName", userName).
             putString("userIdCookie", userIdCookie).
             putString("sessionIdCookie", sessionIdCookie).
             putString("csrfToken", csrfToken).
@@ -40,6 +42,7 @@ class Application : android.app.Application() {
         currentSession = null
         val preferences = getPreferences()
         preferences.edit().
+            remove("userName").
             remove("userIdCookie").
             remove("sessionIdCookie").
             remove("csrfToken").

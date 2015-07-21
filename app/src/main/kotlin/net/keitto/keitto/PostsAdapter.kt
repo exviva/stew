@@ -42,6 +42,8 @@ class PostsAdapter(val application: Application) : RecyclerView.Adapter<PostsAda
 
         val controller = Fresco.newDraweeControllerBuilder().setUri(post.uri).setAutoPlayAnimations(true).build()
         postViewHolder.postImageView.setController(controller)
+
+        postViewHolder.repostButton.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
         postViewHolder.repostButton.setOnClickListener { application.api.repost(post) }
     }
 
