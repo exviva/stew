@@ -53,7 +53,7 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
                 override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
                     postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
                     postViewHolder.postImageView.setOnClickListener {
-                        FullscreenImageActivity.start(activity, post.uri)
+                        FullscreenImageActivity.start(activity, post.uri, it)
                     }
                 }
             }).
