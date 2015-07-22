@@ -1,4 +1,4 @@
-package net.keitto.keitto
+package net.stew.stew
 
 enum class PostCollection {
     FRIENDS,

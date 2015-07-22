@@ -1,4 +1,4 @@
-package net.keitto.keitto
+package net.stew.stew
 
 class PostsProvider(private val listener: PostsProvider.Listener, private val application: Application) {
 

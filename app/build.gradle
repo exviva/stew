@@ -6,7 +6,7 @@ android {
     buildToolsVersion "21.1.2"
 
     defaultConfig {
-        applicationId "net.keitto.keitto"
+        applicationId "net.stew.stew"
         minSdkVersion 19
         targetSdkVersion 22
         versionCode 1

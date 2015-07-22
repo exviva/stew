@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Keitto</string>
+    <string name="app_name">Stew</string>
     <string name="loading">Loading...</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>

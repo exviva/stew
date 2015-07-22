@@ -1,4 +1,4 @@
-package net.keitto.keitto
+package net.stew.stew
 
 import android.net.Uri
 
