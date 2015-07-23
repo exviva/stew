@@ -15,7 +15,8 @@ import kotlinx.android.synthetic.activity_main.postsView
 class MainActivity : Activity() {
 
     var drawerToggle: ActionBarDrawerToggle? = null
-    var postsAdapter: PostsAdapter? = null
+    var postsAdapters: Map<PostCollection, PostsAdapter>? = null
+    var activePostsAdapter: PostsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -23,16 +24,18 @@ class MainActivity : Activity() {
         if (requireCurrentSession()) {
             setContentView(R.layout.activity_main)
 
-            postsAdapter = PostsAdapter(this)
+            val layoutManager = LinearLayoutManager(this)
+            postsAdapters = PostCollection.values().map { it to PostsAdapter(this, it) }.toMap()
+            postsAdapters!!.forEach { it.value.layoutManager = layoutManager }
             postsView.setHasFixedSize(true)
-            postsView.setLayoutManager(LinearLayoutManager(this))
-            postsView.setAdapter(postsAdapter)
+            postsView.setLayoutManager(layoutManager)
+            setActivePostsAdapter(PostCollection.FRIENDS)
 
             val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
             drawerListView.setAdapter(ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item, listItems))
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 if (position < PostCollection.values().size()) {
-                    postsAdapter!!.setCollection(PostCollection.values()[position])
+                    setActivePostsAdapter(PostCollection.values()[position])
                 } else {
                     logOut()
                 }
@@ -44,6 +47,18 @@ class MainActivity : Activity() {
             getActionBar().setDisplayHomeAsUpEnabled(true)
             getActionBar().setHomeButtonEnabled(true)
         }
+    }
+
+    private fun setActivePostsAdapter(postCollection: PostCollection) {
+        if (activePostsAdapter != null) {
+            activePostsAdapter!!.deactivate()
+            postsView.removeOnScrollListener(activePostsAdapter!!.onScrollListener)
+        }
+
+        activePostsAdapter = postsAdapters!![postCollection]
+        activePostsAdapter!!.activate()
+        postsView.setAdapter(activePostsAdapter)
+        postsView.addOnScrollListener(activePostsAdapter!!.onScrollListener)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {

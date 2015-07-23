@@ -2,6 +2,7 @@ package net.stew.stew
 
 import android.app.Activity
 import android.graphics.drawable.Animatable
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -13,7 +14,8 @@ import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
 
-class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
+class PostsAdapter(val activity: Activity, var collection: PostCollection) :
+    RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -29,12 +31,39 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
 
     val application: Application
     private var posts: List<Post>? = null
-    private var collection: PostCollection = PostCollection.FRIENDS
+    private val postsProvider: PostsProvider
+    var layoutManager: LinearLayoutManager? = null
+    var isActive = false
+    val onScrollListener = object: RecyclerView.OnScrollListener() {
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
 
+            if (layoutManager!!.findLastVisibleItemPosition() == posts!!.size() - 1) {
+                load()
+            }
+        }
+    }
 
     init {
         application = activity.getApplication() as Application
-        load()
+        postsProvider = when (collection) {
+            PostCollection.ME -> MyPostsProvider(this, application)
+            else -> OthersPostsProvider(this, collection, application)
+        }
+    }
+
+    fun activate() {
+        isActive = true
+
+        if (posts == null) {
+            load()
+        } else {
+            setTitleToLoaded()
+        }
+    }
+
+    fun deactivate() {
+        isActive = false
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
@@ -88,35 +117,38 @@ class PostsAdapter(val activity: Activity) : RecyclerView.Adapter<PostsAdapter.P
         return posts?.size() ?: 0
     }
 
-    override fun onPostsLoaded(collection: PostCollection, posts: Collection<Post>) {
-        if (collection == this.collection) {
+    override fun onPostsLoaded(posts: Collection<Post>) {
+        if (this.posts == null) {
             this.posts = posts.toList()
-            activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
-            notifyDataSetChanged()
+        } else {
+            this.posts = this.posts!! + posts
         }
+        setTitleToLoaded()
+        notifyDataSetChanged()
     }
 
     override fun onPostsLoadError() {
-        activity.setTitle(R.string.network_error)
-        showErrorToast()
-    }
-
-    fun setCollection(collection: PostCollection) {
-        this.collection = collection
-
-        load()
+        if (isActive) {
+            activity.setTitle(R.string.network_error)
+            showErrorToast()
+        }
     }
 
     private fun load() {
-        posts = null
         activity.setTitle(R.string.loading)
-        notifyDataSetChanged()
-        val provider = PostsProvider(this, application)
-        provider.loadPosts(collection)
+        postsProvider.loadPosts(posts?.last())
+    }
+
+    private fun setTitleToLoaded() {
+        if (isActive) {
+            activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
+        }
     }
 
     private fun showErrorToast() {
-        Toast.makeText(activity, R.string.network_error_toast, Toast.LENGTH_SHORT).show()
+        if (isActive) {
+            Toast.makeText(activity, R.string.network_error_toast, Toast.LENGTH_SHORT).show()
+        }
     }
 
 }

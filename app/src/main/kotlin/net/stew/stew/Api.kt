@@ -32,23 +32,41 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchPosts(collection: PostCollection, errorListener: () -> Unit, listener: (Collection<Post>) -> Unit) {
+    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: () -> Unit, listener: (Collection<Post>) -> Unit) {
         val path = when (collection) {
             PostCollection.FRIENDS -> "/friends"
             PostCollection.FOF -> "/fof"
-            PostCollection.ME -> "/"
+            PostCollection.ME -> throw IllegalArgumentException("Call fetchMyPosts instead")
         }
-        val subdomain = if (collection == PostCollection.ME) application.currentSession!!.userName else null
-        val connection = connect(path, subdomain)
+
+        val connection = connect(path)
+
+        if (lastPost != null) {
+            connection.data("since", lastPost.id.toString())
+        }
 
         executeRequest(connection, errorListener) {
-            val posts = it.select(".post_image").map {
-                val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
-                val src = it.select(".imagecontainer img").attr("src")
-                val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
-                Post(id, Uri.parse(src), if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED)
-            }
-            listener(posts)
+            listener(parsePosts(it))
+        }
+    }
+
+    fun fetchMyPosts(lastPost: Post?, cookies: Map<String, String>?, errorListener: () -> Unit,
+        listener: (Collection<Post>, Map<String, String>) -> Unit) {
+        val path = "/" + if (lastPost != null) "since/${lastPost.id}" else ""
+        val subdomain = application.currentSession!!.userName
+
+        val connection = connect(path, subdomain)
+
+        if (lastPost != null) {
+            connection.data("mode", "own")
+        }
+
+        if (cookies != null) {
+            connection.cookies(cookies)
+        }
+
+        executeRequest(connection, errorListener) {
+            listener(parsePosts(it), connection.response().cookies())
         }
     }
 
@@ -101,6 +119,15 @@ class Api(val application: Application) {
             }
         }
         task.execute()
+    }
+
+    private fun parsePosts(document: Document): Collection<Post> {
+        return document.select(".post_image").map {
+            val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
+            val src = it.select(".imagecontainer img").attr("src")
+            val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
+            Post(id, Uri.parse(src), if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED)
+        }
     }
 
 }
