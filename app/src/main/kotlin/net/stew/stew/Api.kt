@@ -10,7 +10,7 @@ import kotlin.text.Regex
 
 class Api(val application: Application) {
 
-    fun logIn(userName: String, password: String, errorListener: () -> Unit, listener: (String, String, String) -> Unit) {
+    fun logIn(userName: String, password: String, errorListener: () -> Unit, listener: (String?, String?, String?) -> Unit) {
         val loginPageConnection = connect("/login", useSsl = true)
         executeRequest(loginPageConnection, errorListener) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")

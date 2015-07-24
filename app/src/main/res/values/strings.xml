@@ -2,9 +2,11 @@
 <resources>
     <string name="app_name">Stew</string>
     <string name="domain_suffix">.soup.io</string>
+    <string name="invalid_credentials">Invalid username/password, please try again</string>
     <string name="loading">Loading…</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>
+    <string name="logging_in">Logging in…</string>
     <string name="network_error">Network error</string>
     <string name="network_error_toast">Oops, there seems to be a problem with your connection to soup.io</string>
     <string name="passwordHint">Enter your password</string>

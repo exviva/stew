@@ -27,14 +27,26 @@ class LoginActivity() : Activity() {
         val password = passwordEditText.getText().toString()
         val application = getApplication() as Application
         val errorListener = {
-            Toast.makeText(this, R.string.network_error_toast, Toast.LENGTH_SHORT).show()
+            handleResponseError(R.string.network_error_toast)
         }
+        logInButton.setEnabled(false)
+        logInButton.setText(R.string.logging_in)
         application.api.logIn(userName, password, errorListener) { userIdCookie, sessionIdCookie, csrfToken ->
-            application.setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
-            val intent = Intent(this, javaClass<MainActivity>())
-            startActivity(intent)
-            finish()
+            if (userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
+                application.setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
+                val intent = Intent(this, javaClass<MainActivity>())
+                startActivity(intent)
+                finish()
+            } else {
+                handleResponseError(R.string.invalid_credentials)
+            }
         }
+    }
+
+    private fun handleResponseError(toastMessageId: Int) {
+        logInButton.setEnabled(true)
+        logInButton.setText(R.string.log_in)
+        Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT).show()
     }
 
     private val textWatcher = object: TextWatcher {
