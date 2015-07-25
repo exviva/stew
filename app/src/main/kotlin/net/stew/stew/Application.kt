@@ -15,18 +15,6 @@ class Application : android.app.Application() {
         restoreCurrentSession()
     }
 
-    private fun restoreCurrentSession() {
-        val preferences = getPreferences()
-        val userName = preferences.getString("userName", null)
-        val userIdCookie = preferences.getString("userIdCookie", null)
-        val sessionIdCookie = preferences.getString("sessionIdCookie", null)
-        val csrfToken = preferences.getString("csrfToken", null)
-
-        if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
-            setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
-        }
-    }
-
     fun setCurrentSession(userName: String, userIdCookie: String, sessionIdCookie: String, csrfToken: String) {
         currentSession = CurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
         val preferences = getPreferences()
@@ -47,6 +35,18 @@ class Application : android.app.Application() {
             remove("sessionIdCookie").
             remove("csrfToken").
             commit()
+    }
+
+    private fun restoreCurrentSession() {
+        val preferences = getPreferences()
+        val userName = preferences.getString("userName", null)
+        val userIdCookie = preferences.getString("userIdCookie", null)
+        val sessionIdCookie = preferences.getString("sessionIdCookie", null)
+        val csrfToken = preferences.getString("csrfToken", null)
+
+        if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
+            setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
+        }
     }
 
     private fun getPreferences() = getSharedPreferences("Application", Context.MODE_PRIVATE)

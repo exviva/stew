@@ -59,16 +59,6 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun setActivePostsAdapter(postCollection: PostCollection) {
-        if (activePostsAdapter != null) {
-            activePostsAdapter!!.deactivate()
-        }
-
-        activePostsAdapter = postsAdapters!![postCollection]
-        activePostsAdapter!!.activate()
-        postsView.setAdapter(activePostsAdapter)
-    }
-
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
@@ -94,6 +84,16 @@ class MainActivity : Activity() {
 
     fun hideLoadingIndicator() {
         loadingIndicator.animate().translationY(loadingIndicator.getHeight().toFloat())
+    }
+
+    private fun setActivePostsAdapter(postCollection: PostCollection) {
+        if (activePostsAdapter != null) {
+            activePostsAdapter!!.deactivate()
+        }
+
+        activePostsAdapter = postsAdapters!![postCollection]
+        activePostsAdapter!!.activate()
+        postsView.setAdapter(activePostsAdapter)
     }
 
     private fun logOut() {
