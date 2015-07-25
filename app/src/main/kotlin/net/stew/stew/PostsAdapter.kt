@@ -9,6 +9,8 @@ import android.widget.Button
 import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
+import com.facebook.drawee.drawable.ProgressBarDrawable
+import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
 
@@ -32,11 +34,12 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         APPEND
     }
 
-    val application: Application
+    private val application: Application
     private var posts: List<Post>
     private val postsProvider: PostsProvider
     private var loadMode = LoadMode.REPLACE
-    var isActive = false
+    private var isActive = false
+
 
     init {
         application = activity.getApplication() as Application
@@ -67,8 +70,19 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
         val view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.post, viewGroup, false)
+        val viewHolder = PostViewHolder(view)
+        val progressDrawable = ProgressBarDrawable()
 
-        return PostViewHolder(view)
+        progressDrawable.setColor(activity.getResources().getColor(R.color.accent))
+        progressDrawable.setBarWidth(activity.getResources().getDimensionPixelSize(R.dimen.image_progress_bar_height))
+
+        val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.getResources()).
+            setProgressBarImage(progressDrawable).
+            build()
+
+        viewHolder.postImageView.setHierarchy(draweeHierarchy)
+
+        return viewHolder
     }
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
@@ -77,7 +91,8 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val controller = Fresco.newDraweeControllerBuilder().
             setUri(post.uri).
             setAutoPlayAnimations(true).
-            setControllerListener(object: BaseControllerListener<ImageInfo>() {
+            setOldController(postViewHolder.postImageView.getController()).
+            setControllerListener(object : BaseControllerListener<ImageInfo>() {
                 override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
                     postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
                     postViewHolder.postImageView.setOnClickListener {
