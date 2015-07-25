@@ -24,6 +24,8 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
         }
     }
 
+    fun isLoading(): Boolean = loadingInProgress
+
     abstract protected fun fetchPosts(lastPost: Post?)
 
 }

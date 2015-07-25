@@ -10,6 +10,7 @@ import android.view.MenuItem
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
+import kotlinx.android.synthetic.activity_main.loadingIndicator
 import kotlinx.android.synthetic.activity_main.postsView
 
 class MainActivity : Activity() {
@@ -78,6 +79,14 @@ class MainActivity : Activity() {
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
         drawerToggle!!.syncState()
+    }
+
+    fun showLoadingIndicator() {
+        loadingIndicator.animate().translationY(0.0f)
+    }
+
+    fun hideLoadingIndicator() {
+        loadingIndicator.animate().translationY(loadingIndicator.getHeight().toFloat())
     }
 
     private fun logOut() {

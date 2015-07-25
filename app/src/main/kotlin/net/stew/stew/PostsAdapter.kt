@@ -1,6 +1,5 @@
 package net.stew.stew
 
-import android.app.Activity
 import android.graphics.drawable.Animatable
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -14,7 +13,7 @@ import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
 
-class PostsAdapter(val activity: Activity, var collection: PostCollection) :
+class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -54,15 +53,19 @@ class PostsAdapter(val activity: Activity, var collection: PostCollection) :
 
     fun activate() {
         isActive = true
+        activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
+
+        if (postsProvider.isLoading()) {
+            showLoadingIndicator()
+        }
 
         if (posts == null) {
             load()
-        } else {
-            setTitleToLoaded()
         }
     }
 
     fun deactivate() {
+        hideLoadingIndicator()
         isActive = false
     }
 
@@ -123,31 +126,37 @@ class PostsAdapter(val activity: Activity, var collection: PostCollection) :
         } else {
             this.posts = this.posts!! + posts
         }
-        setTitleToLoaded()
         notifyDataSetChanged()
+        stopLoading()
     }
 
     override fun onPostsLoadError() {
-        if (isActive) {
-            activity.setTitle(R.string.network_error)
-            showErrorToast()
-        }
+        stopLoading()
+        showErrorToast()
+    }
+
+    private fun stopLoading() {
+        hideLoadingIndicator()
     }
 
     private fun load() {
-        activity.setTitle(R.string.loading)
+        showLoadingIndicator()
         postsProvider.loadPosts(posts?.last())
     }
 
-    private fun setTitleToLoaded() {
+    private fun showLoadingIndicator() {
+        activity.showLoadingIndicator()
+    }
+
+    private fun hideLoadingIndicator() {
         if (isActive) {
-            activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
+            activity.hideLoadingIndicator()
         }
     }
 
     private fun showErrorToast() {
         if (isActive) {
-            Toast.makeText(activity, R.string.network_error_toast, Toast.LENGTH_SHORT).show()
+            Toast.makeText(activity, R.string.network_error, Toast.LENGTH_SHORT).show()
         }
     }
 

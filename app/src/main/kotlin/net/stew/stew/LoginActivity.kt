@@ -27,7 +27,7 @@ class LoginActivity() : Activity() {
         val password = passwordEditText.getText().toString()
         val application = getApplication() as Application
         val errorListener = {
-            handleResponseError(R.string.network_error_toast)
+            handleResponseError(R.string.network_error)
         }
         logInButton.setEnabled(false)
         logInButton.setText(R.string.logging_in)
