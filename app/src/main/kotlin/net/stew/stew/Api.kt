@@ -32,7 +32,8 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: () -> Unit, listener: (Collection<Post>) -> Unit) {
+    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: () -> Unit, listener: (Collection<Post>) -> Unit):
+        AsyncTask<Void, Void, Document?> {
         val path = when (collection) {
             PostCollection.FRIENDS -> "/friends"
             PostCollection.FOF -> "/fof"
@@ -45,13 +46,13 @@ class Api(val application: Application) {
             connection.data("since", lastPost.id.toString())
         }
 
-        executeRequest(connection, errorListener) {
+        return executeRequest(connection, errorListener) {
             listener(parsePosts(it))
         }
     }
 
     fun fetchMyPosts(lastPost: Post?, cookies: Map<String, String>?, errorListener: () -> Unit,
-        listener: (Collection<Post>, Map<String, String>) -> Unit) {
+        listener: (Collection<Post>, Map<String, String>) -> Unit): AsyncTask<Void, Void, Document?> {
         val path = "/" + if (lastPost != null) "since/${lastPost.id}" else ""
         val subdomain = application.currentSession!!.userName
 
@@ -65,7 +66,7 @@ class Api(val application: Application) {
             connection.cookies(cookies)
         }
 
-        executeRequest(connection, errorListener) {
+        return executeRequest(connection, errorListener) {
             listener(parsePosts(it), connection.response().cookies())
         }
     }
@@ -100,7 +101,8 @@ class Api(val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: () -> Unit, listener: ((Document) -> Unit)) {
+    private fun executeRequest(connection: Connection, errorListener: () -> Unit, listener: ((Document) -> Unit)):
+        AsyncTask<Void, Void, Document?> {
         val task = object: AsyncTask<Void, Void, Document?>() {
             override fun doInBackground(vararg params: Void?): Document? {
                 try {
@@ -119,6 +121,7 @@ class Api(val application: Application) {
             }
         }
         task.execute()
+        return task
     }
 
     private fun parsePosts(document: Document): Collection<Post> {
