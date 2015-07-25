@@ -1,7 +1,6 @@
 package net.stew.stew
 
 import android.graphics.drawable.Animatable
-import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -31,17 +30,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     val application: Application
     private var posts: List<Post>? = null
     private val postsProvider: PostsProvider
-    var layoutManager: LinearLayoutManager? = null
     var isActive = false
-    val onScrollListener = object: RecyclerView.OnScrollListener() {
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-
-            if (layoutManager!!.findLastVisibleItemPosition() == posts!!.size() - 1) {
-                load()
-            }
-        }
-    }
 
     init {
         application = activity.getApplication() as Application
@@ -135,13 +124,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         showErrorToast()
     }
 
-    private fun stopLoading() {
-        hideLoadingIndicator()
-    }
-
-    private fun load() {
+    fun load() {
         showLoadingIndicator()
         postsProvider.loadPosts(posts?.last())
+    }
+
+    private fun stopLoading() {
+        hideLoadingIndicator()
     }
 
     private fun showLoadingIndicator() {

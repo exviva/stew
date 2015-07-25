@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.activity_main.drawerLayout
@@ -27,9 +28,17 @@ class MainActivity : Activity() {
 
             val layoutManager = LinearLayoutManager(this)
             postsAdapters = PostCollection.values().map { it to PostsAdapter(this, it) }.toMap()
-            postsAdapters!!.forEach { it.value.layoutManager = layoutManager }
+
             postsView.setHasFixedSize(true)
             postsView.setLayoutManager(layoutManager)
+            postsView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 1) {
+                        activePostsAdapter!!.load()
+                    }
+                }
+            })
+
             setActivePostsAdapter(PostCollection.FRIENDS)
 
             val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
@@ -53,13 +62,11 @@ class MainActivity : Activity() {
     private fun setActivePostsAdapter(postCollection: PostCollection) {
         if (activePostsAdapter != null) {
             activePostsAdapter!!.deactivate()
-            postsView.removeOnScrollListener(activePostsAdapter!!.onScrollListener)
         }
 
         activePostsAdapter = postsAdapters!![postCollection]
         activePostsAdapter!!.activate()
         postsView.setAdapter(activePostsAdapter)
-        postsView.addOnScrollListener(activePostsAdapter!!.onScrollListener)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
