@@ -10,6 +10,8 @@ import kotlin.text.Regex
 
 class Api(val application: Application) {
 
+    private val runningTasks = arrayListOf<AsyncTask<Void, Void, Document?>>()
+
     fun logIn(userName: String, password: String, errorListener: () -> Unit, listener: (String?, String?, String?) -> Unit) {
         val loginPageConnection = connect("/login", useSsl = true)
         executeRequest(loginPageConnection, errorListener) {
@@ -87,6 +89,11 @@ class Api(val application: Application) {
         }
     }
 
+    fun cancelRunningRequests() {
+        runningTasks.forEach { it.cancel(true) }
+        runningTasks.clear()
+    }
+
     private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {
         val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io${path}").
             timeout(10000)
@@ -113,6 +120,7 @@ class Api(val application: Application) {
             }
 
             override fun onPostExecute(document: Document?) {
+                runningTasks.remove(this)
                 if (document != null) {
                     listener(document)
                 } else {
@@ -121,6 +129,7 @@ class Api(val application: Application) {
             }
         }
         task.execute()
+        runningTasks.add(task)
         return task
     }
 

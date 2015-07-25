@@ -28,6 +28,7 @@ class Application : android.app.Application() {
     }
 
     fun logOut() {
+        api.cancelRunningRequests()
         currentSession = null
         val preferences = getPreferences()
         preferences.edit().
