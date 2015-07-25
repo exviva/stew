@@ -11,6 +11,7 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
     }
 
     private var loadingTask: AsyncTask<Void, Void, Document?>? = null
+    private var loadingTaskIsForMorePosts: Boolean = false
 
     protected val errorListener: () -> Unit = {
         loadingTask = null
@@ -23,10 +24,15 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
 
     public fun loadPosts(lastPost: Post?) {
         if (loadingTask != null) {
-            loadingTask!!.cancel(true)
+            if (loadingTaskIsForMorePosts == (lastPost != null)) {
+                return
+            } else {
+                loadingTask!!.cancel(true)
+            }
         }
 
         loadingTask = fetchPosts(lastPost)
+        loadingTaskIsForMorePosts = lastPost != null
     }
 
     fun isLoading(): Boolean = loadingTask != null
