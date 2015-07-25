@@ -1,21 +1,20 @@
 package net.stew.stew
 
-import android.app.Activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
-import android.widget.ArrayAdapter
 import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
 import kotlinx.android.synthetic.activity_main.loadingIndicator
 import kotlinx.android.synthetic.activity_main.postsView
 import java.io.Serializable
 
-class MainActivity : Activity() {
+class MainActivity : AppCompatActivity() {
 
     val ACTIVE_POST_COLLECTION_TAG = "active_post_collection"
     var drawerToggle: ActionBarDrawerToggle? = null
@@ -59,8 +58,8 @@ class MainActivity : Activity() {
 
             drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
             drawerLayout.setDrawerListener(drawerToggle)
-            getActionBar().setDisplayHomeAsUpEnabled(true)
-            getActionBar().setHomeButtonEnabled(true)
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true)
+            getSupportActionBar().setHomeButtonEnabled(true)
         }
     }
 

@@ -5,4 +5,5 @@
     <color name="light_gray">#aaa</color>
     <color name="lighter_gray">#ddd</color>
     <color name="primary">#e00</color>
+    <color name="primary_dark">#a11</color>
 </resources>
