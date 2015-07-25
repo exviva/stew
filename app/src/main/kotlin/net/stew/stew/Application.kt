@@ -7,6 +7,7 @@ class Application : android.app.Application() {
 
     var currentSession: CurrentSession? = null
     val api = Api(this)
+    val postsStore = PostsStore()
 
     override fun onCreate() {
         super.onCreate()

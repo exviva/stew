@@ -13,9 +13,11 @@ import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
 import kotlinx.android.synthetic.activity_main.loadingIndicator
 import kotlinx.android.synthetic.activity_main.postsView
+import java.io.Serializable
 
 class MainActivity : Activity() {
 
+    val ACTIVE_POST_COLLECTION_TAG = "active_post_collection"
     var drawerToggle: ActionBarDrawerToggle? = null
     var postsAdapters: Map<PostCollection, PostsAdapter>? = null
     var activePostsAdapter: PostsAdapter? = null
@@ -34,18 +36,19 @@ class MainActivity : Activity() {
             postsView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                     if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 1) {
-                        activePostsAdapter!!.load()
+                        activePostsAdapter!!.loadMore()
                     }
                 }
             })
 
-            setActivePostsAdapter(PostCollection.FRIENDS)
+            val activePostCollection = savedInstanceState?.getSerializable(ACTIVE_POST_COLLECTION_TAG) as PostCollection? ?: PostCollection.FRIENDS
+            setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
             val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
             drawerListView.setAdapter(ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item, listItems))
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 if (position < PostCollection.values().size()) {
-                    setActivePostsAdapter(PostCollection.values()[position])
+                    setActivePostsAdapter(PostCollection.values()[position], true)
                 } else {
                     logOut()
                 }
@@ -78,21 +81,28 @@ class MainActivity : Activity() {
         drawerToggle!!.syncState()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putSerializable(ACTIVE_POST_COLLECTION_TAG, activePostsAdapter!!.collection as Serializable)
+    }
+
     fun showLoadingIndicator() {
-        loadingIndicator.animate().translationY(0.0f)
+        loadingIndicator.animate().translationY(getResources().getDimensionPixelSize(R.dimen.loading_indicator_bottom_margin).toFloat())
     }
 
     fun hideLoadingIndicator() {
-        loadingIndicator.animate().translationY(loadingIndicator.getHeight().toFloat())
+        loadingIndicator.animate().translationY(0.0f)
     }
 
-    private fun setActivePostsAdapter(postCollection: PostCollection) {
+    private fun setActivePostsAdapter(postCollection: PostCollection, load: Boolean) {
         if (activePostsAdapter != null) {
             activePostsAdapter!!.deactivate()
         }
 
         activePostsAdapter = postsAdapters!![postCollection]
-        activePostsAdapter!!.activate()
+        activePostsAdapter!!.activate(load)
+
+        setTitle(getResources().getStringArray(R.array.post_collections)[postCollection.ordinal()])
         postsView.setAdapter(activePostsAdapter)
     }
 

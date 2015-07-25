@@ -20,11 +20,12 @@
         <LinearLayout
             android:id="@+id/loadingIndicator"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/loading_indicator_height"
             android:layout_gravity="bottom"
             android:gravity="center"
             android:background="#88000000"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:layout_marginBottom="@dimen/loading_indicator_bottom_margin">
 
             <ProgressBar
                 android:layout_width="20dp"

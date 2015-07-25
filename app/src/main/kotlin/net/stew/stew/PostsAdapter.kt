@@ -15,7 +15,7 @@ import com.facebook.imagepipeline.image.ImageInfo
 class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
-    public class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val postImageView: SimpleDraweeView
         val repostButton: Button
@@ -27,9 +27,15 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     }
 
+    enum class LoadMode {
+        REPLACE,
+        APPEND
+    }
+
     val application: Application
-    private var posts: List<Post>? = null
+    private var posts: List<Post>
     private val postsProvider: PostsProvider
+    private var loadMode = LoadMode.REPLACE
     var isActive = false
 
     init {
@@ -38,18 +44,19 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             PostCollection.ME -> MyPostsProvider(this, application)
             else -> OthersPostsProvider(this, collection, application)
         }
+        posts = application.postsStore.restore(collection)
     }
 
-    fun activate() {
+    fun activate(load: Boolean) {
         isActive = true
-        activity.setTitle(activity.getResources().getStringArray(R.array.post_collections)[collection.ordinal()])
+
+        if (load) {
+            loadMode = LoadMode.REPLACE
+            load()
+        }
 
         if (postsProvider.isLoading()) {
             showLoadingIndicator()
-        }
-
-        if (posts == null) {
-            load()
         }
     }
 
@@ -65,7 +72,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     }
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
-        val post = posts!!.get(i)
+        val post = posts.get(i)
 
         val controller = Fresco.newDraweeControllerBuilder().
             setUri(post.uri).
@@ -106,15 +113,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     }
 
     override fun getItemCount(): Int {
-        return posts?.size() ?: 0
+        return posts.size()
     }
 
     override fun onPostsLoaded(posts: Collection<Post>) {
-        if (this.posts == null) {
-            this.posts = posts.toList()
-        } else {
-            this.posts = this.posts!! + posts
-        }
+        this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
+
+        application.postsStore.store(collection, this.posts)
         notifyDataSetChanged()
         stopLoading()
     }
@@ -124,9 +129,14 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         showErrorToast()
     }
 
-    fun load() {
+    fun loadMore() {
+        loadMode = LoadMode.APPEND
+        load()
+    }
+
+    private fun load() {
         showLoadingIndicator()
-        postsProvider.loadPosts(posts?.last())
+        postsProvider.loadPosts(if (loadMode == LoadMode.REPLACE) null else posts.lastOrNull())
     }
 
     private fun stopLoading() {
