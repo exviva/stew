@@ -21,6 +21,7 @@ class MainActivity : Activity() {
     var drawerToggle: ActionBarDrawerToggle? = null
     var postsAdapters: Map<PostCollection, PostsAdapter>? = null
     var activePostsAdapter: PostsAdapter? = null
+    var drawerAdapter: DrawerAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,11 +42,12 @@ class MainActivity : Activity() {
                 }
             })
 
+            drawerAdapter = DrawerAdapter(this)
             val activePostCollection = savedInstanceState?.getSerializable(ACTIVE_POST_COLLECTION_TAG) as PostCollection? ?: PostCollection.FRIENDS
+
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
-            val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
-            drawerListView.setAdapter(ArrayAdapter<String>(this, R.layout.drawer_list_item, listItems))
+            drawerListView.setAdapter(drawerAdapter)
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 if (position < PostCollection.values().size()) {
                     setActivePostsAdapter(PostCollection.values()[position], true)
@@ -104,6 +106,7 @@ class MainActivity : Activity() {
 
         setTitle(getResources().getStringArray(R.array.post_collections)[postCollection.ordinal()])
         postsView.setAdapter(activePostsAdapter)
+        drawerAdapter!!.setActiveItemPosition(postCollection.ordinal())
     }
 
     private fun logOut() {

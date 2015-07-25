@@ -2,4 +2,5 @@
 <resources>
     <color name="dark_gray">#ff666666</color>
     <color name="light_gray">#ffaaaaaa</color>
+    <color name="text_active">#ffdd2222</color>
 </resources>
