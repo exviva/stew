@@ -45,7 +45,7 @@ class MainActivity : Activity() {
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
             val listItems = getResources().getStringArray(R.array.post_collections) + getString(R.string.log_out)
-            drawerListView.setAdapter(ArrayAdapter<String>(this, android.R.layout.simple_selectable_list_item, listItems))
+            drawerListView.setAdapter(ArrayAdapter<String>(this, R.layout.drawer_list_item, listItems))
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 if (position < PostCollection.values().size()) {
                     setActivePostsAdapter(PostCollection.values()[position], true)
