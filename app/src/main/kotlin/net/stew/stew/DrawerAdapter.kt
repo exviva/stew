@@ -28,7 +28,7 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         }
 
         textView.setText(getItem(position))
-        textView.setTextColor(context.getResources().getColor(if (isActive) R.color.text_active else android.R.color.primary_text_light))
+        textView.setTextColor(context.getResources().getColor(if (isActive) R.color.primary else android.R.color.primary_text_light))
 
         return textView
     }
