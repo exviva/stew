@@ -2,6 +2,7 @@
 <resources>
     <color name="accent">#a6c</color>
     <color name="dark_gray">#666</color>
-    <color name="primary">#e00</color>
     <color name="light_gray">#aaa</color>
+    <color name="lighter_gray">#ddd</color>
+    <color name="primary">#e00</color>
 </resources>
