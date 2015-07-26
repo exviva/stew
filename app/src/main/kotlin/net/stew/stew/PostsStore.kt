@@ -12,4 +12,8 @@ class PostsStore {
     }
 
     fun restore(collection: PostCollection) = postsByCollection[collection].toList()
+
+    fun clear() {
+        postsByCollection.forEach { it.value.clear() }
+    }
 }
