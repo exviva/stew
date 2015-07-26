@@ -10,7 +10,9 @@ import android.widget.TextView
 
 class DrawerAdapter(context: Context) : BaseAdapter() {
 
-    private val listItems = context.getResources().getStringArray(R.array.post_collections) + context.getString(R.string.log_out)
+    private val listItems = context.getResources().getStringArray(R.array.post_collections) +
+        context.getString(R.string.log_out) +
+        context.getString(R.string.about)
     private var activeItemPosition = 0
 
     override fun getItem(position: Int) = listItems[position]

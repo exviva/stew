@@ -48,10 +48,13 @@ class MainActivity : AppCompatActivity() {
 
             drawerListView.setAdapter(drawerAdapter)
             drawerListView.setOnItemClickListener { parent, view, position, id ->
-                if (position < PostCollection.values().size()) {
+                val postCollectionValuesSize = PostCollection.values().size()
+                if (position < postCollectionValuesSize) {
                     setActivePostsAdapter(PostCollection.values()[position], true)
-                } else {
+                } else if (position == postCollectionValuesSize) {
                     logOut()
+                } else {
+                    startActivity(Intent(this, javaClass<AboutActivity>()))
                 }
                 drawerLayout.closeDrawers()
             }
