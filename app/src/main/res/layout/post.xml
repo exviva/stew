@@ -28,6 +28,7 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_centerVertical="true"
+                android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
                 fresco:actualImageScaleType="centerCrop"
                 fresco:roundAsCircle="true"
@@ -38,6 +39,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/authorImageView"
                 android:layout_toEndOf="@id/authorImageView" />
 
 
@@ -46,6 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentEnd="true" />
 
             <com.facebook.drawee.view.SimpleDraweeView
@@ -53,8 +56,11 @@
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:layout_centerVertical="true"
+                android:layout_marginLeft="16dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginEnd="8dp"
+                android:layout_toLeftOf="@id/groupNameTextView"
                 android:layout_toStartOf="@id/groupNameTextView"
                 fresco:actualImageScaleType="centerCrop"
                 fresco:roundAsCircle="true"
