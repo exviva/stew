@@ -11,12 +11,55 @@
     card_view:cardCornerRadius="4dp">
 
     <LinearLayout
+        xmlns:fresco="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <RelativeLayout
+            android:id="@+id/authorshipLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/authorImageView"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"
+                fresco:actualImageScaleType="centerCrop"
+                fresco:roundAsCircle="true" />
+
+            <TextView
+                android:id="@+id/authorNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/authorImageView" />
+
+
+            <TextView
+                android:id="@+id/groupNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true" />
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/groupImageView"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_centerVertical="true"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:layout_toStartOf="@id/groupNameTextView"
+                fresco:actualImageScaleType="centerCrop"
+                fresco:roundAsCircle="true" />
+
+        </RelativeLayout>
+
         <com.facebook.drawee.view.SimpleDraweeView
-            xmlns:fresco="http://schemas.android.com/apk/res-auto"
             android:id="@+id/postImageView"
             android:layout_width="match_parent"
             android:layout_height="300dp"

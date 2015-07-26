@@ -2,12 +2,16 @@ package net.stew.stew
 
 import android.net.Uri
 
-data class Post(val id: Int, val uri: Uri, var repostState: Post.RepostState) {
+class Post(val id: Int, val uri: Uri, val author: Post.Author, val group: Post.Group?,
+    var repostState: Post.RepostState) {
 
     enum class RepostState {
         NOT_REPOSTED,
         REPOSTING,
         REPOSTED
     }
+
+    class Author(val name: String, val imageUri: Uri)
+    class Group(val name: String, val imageUri: Uri)
 
 }

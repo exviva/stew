@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
@@ -21,10 +22,20 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
         val postImageView: SimpleDraweeView
         val repostButton: Button
+        val authorshipLayout: View
+        val authorNameTextView: TextView
+        val authorImageView: SimpleDraweeView
+        val groupNameTextView: TextView
+        val groupImageView: SimpleDraweeView
 
         init {
             postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
             repostButton = itemView.findViewById(R.id.repostButton) as Button
+            authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
+            authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
+            authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
+            groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
+            groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
         }
 
     }
@@ -87,7 +98,6 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts.get(i)
-
         val controller = Fresco.newDraweeControllerBuilder().
             setUri(post.uri).
             setAutoPlayAnimations(true).
@@ -124,6 +134,22 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                 Post.RepostState.REPOSTED -> R.string.reposted
             }
             it.setText(stringId)
+        }
+
+        if (collection == PostCollection.ME) {
+            postViewHolder.authorshipLayout.setVisibility(View.GONE)
+        } else {
+            val groupVisibility = if (post.group != null) View.VISIBLE else View.GONE
+
+            postViewHolder.authorshipLayout.setVisibility(View.VISIBLE)
+
+            postViewHolder.authorNameTextView.setText(post.author.name)
+            postViewHolder.authorImageView.setImageURI(post.author.imageUri)
+
+            postViewHolder.groupNameTextView.setText(post.group?.name)
+            postViewHolder.groupNameTextView.setVisibility(groupVisibility)
+            postViewHolder.groupImageView.setImageURI(post.group?.imageUri)
+            postViewHolder.groupImageView.setVisibility(groupVisibility)
         }
     }
 

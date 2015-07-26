@@ -138,7 +138,21 @@ class Api(val application: Application) {
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
             val src = it.select(".imagecontainer img").attr("src")
             val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
-            Post(id, Uri.parse(src), if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED)
+            val repostState = if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED
+
+            val authorship = it.select(".icon.author")
+            val authorElement = authorship.select("a.url.user").first() ?: authorship.select("a.url").first()
+            val authorImageUri = Uri.parse(authorElement.select("img").attr("src"))
+            val authorName = authorship.select(".bubble h4 a").text()
+            val author = Post.Author(authorName, authorImageUri)
+
+            val groupImageUrl = authorship.select("a.url.group img").attr("src")
+            val groupImageUri = if (groupImageUrl.isNotBlank()) Uri.parse(groupImageUrl) else null
+            val groupName = authorship.select(".bubble .group a").text()
+            val group = if (groupName.isNotBlank() && groupImageUri != null) Post.Group(groupName, groupImageUri) else null
+
+
+            Post(id, Uri.parse(src), author, group, repostState)
         }
     }
 
