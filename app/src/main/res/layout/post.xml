@@ -20,7 +20,8 @@
             android:id="@+id/authorshipLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="8dp">
+            android:padding="8dp"
+            android:background="@android:color/white">
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/authorImageView"
@@ -29,7 +30,8 @@
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="8dp"
                 fresco:actualImageScaleType="centerCrop"
-                fresco:roundAsCircle="true" />
+                fresco:roundAsCircle="true"
+                fresco:roundWithOverlayColor="@android:color/white" />
 
             <TextView
                 android:id="@+id/authorNameTextView"
@@ -55,7 +57,8 @@
                 android:layout_marginEnd="8dp"
                 android:layout_toStartOf="@id/groupNameTextView"
                 fresco:actualImageScaleType="centerCrop"
-                fresco:roundAsCircle="true" />
+                fresco:roundAsCircle="true"
+                fresco:roundWithOverlayColor="@android:color/white" />
 
         </RelativeLayout>
 
