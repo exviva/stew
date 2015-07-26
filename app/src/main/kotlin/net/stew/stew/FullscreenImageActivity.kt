@@ -33,6 +33,7 @@ class FullscreenImageActivity() : Activity() {
             setAutoPlayAnimations(true).
             build()
         imageView.setController(controller)
+        imageView.setOnClickListener { finish() }
     }
 
 }
