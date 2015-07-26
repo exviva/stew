@@ -12,10 +12,19 @@ android {
         versionCode 1
         versionName "0.1.0"
     }
+    signingConfigs {
+        release {
+            keyAlias 'stew'
+            keyPassword 'stew android'
+            storeFile file('private/stew.keystore')
+            storePassword 'stew android'
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     sourceSets {
