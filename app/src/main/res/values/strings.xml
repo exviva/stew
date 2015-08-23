@@ -4,6 +4,7 @@
     <string name="app_name">Stew</string>
     <string name="app_url">stew-app.soup.io</string>
     <string name="domain_suffix">.soup.io</string>
+    <string name="forbidden">Your session expired, please log in again</string>
     <string name="headline">A simple soup.io app</string>
     <string name="invalid_credentials">Invalid username/password, please try again</string>
     <string name="loading">Loading…</string>

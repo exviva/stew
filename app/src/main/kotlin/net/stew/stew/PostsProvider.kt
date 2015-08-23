@@ -7,15 +7,15 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
 
     public interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
-        fun onPostsLoadError()
+        fun onPostsLoadError(responseStatus: ResponseStatus)
     }
 
-    private var loadingTask: AsyncTask<Void, Void, Document?>? = null
+    private var loadingTask: AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>? = null
     private var loadingTaskIsForMorePosts: Boolean = false
 
-    protected val errorListener: () -> Unit = {
+    protected val errorListener: (ResponseStatus) -> Unit = {
         loadingTask = null
-        listener.onPostsLoadError()
+        listener.onPostsLoadError(it)
     }
     protected val successListener: (Collection<Post>) -> Unit = {
         loadingTask = null
@@ -37,6 +37,6 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
 
     fun isLoading(): Boolean = loadingTask != null
 
-    abstract protected fun fetchPosts(lastPost: Post?): AsyncTask<Void, Void, Document?>
+    abstract protected fun fetchPosts(lastPost: Post?): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>
 
 }

@@ -120,9 +120,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
             it.setEnabled(false)
             it.setOnClickListener {
-                val errorListener = {
-                    notifyDataSetChanged()
-                    showErrorToast()
+                val errorListener: (ResponseStatus) -> Unit = {
+                    if (it == ResponseStatus.FORBIDDEN) {
+                        handleForbidden()
+                    } else {
+                        notifyDataSetChanged()
+                        showErrorToast()
+                    }
                 }
                 application.api.repost(post, errorListener) { notifyDataSetChanged() }
                 notifyDataSetChanged()
@@ -165,9 +169,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         stopLoading()
     }
 
-    override fun onPostsLoadError() {
-        stopLoading()
-        showErrorToast()
+    override fun onPostsLoadError(responseStatus: ResponseStatus) {
+        if (responseStatus == ResponseStatus.FORBIDDEN) {
+            handleForbidden()
+        } else {
+            stopLoading()
+            showErrorToast()
+        }
     }
 
     fun loadMore() {
@@ -198,6 +206,11 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         if (isActive) {
             Toast.makeText(activity, R.string.network_error, Toast.LENGTH_SHORT).show()
         }
+    }
+
+    private fun handleForbidden() {
+        Toast.makeText(activity, R.string.forbidden, Toast.LENGTH_SHORT).show()
+        activity.logOut()
     }
 
 }

@@ -10,15 +10,19 @@ import kotlin.text.Regex
 
 class Api(val application: Application) {
 
-    private val runningTasks = arrayListOf<AsyncTask<Void, Void, Document?>>()
+    companion object {
+        val loginPath = "/login"
+    }
 
-    fun logIn(userName: String, password: String, errorListener: () -> Unit, listener: (String?, String?, String?) -> Unit) {
-        val loginPageConnection = connect("/login", useSsl = true)
+    private val runningTasks = arrayListOf<AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>>()
+
+    fun logIn(userName: String, password: String, errorListener: (ResponseStatus) -> Unit, listener: (String?, String?, String?) -> Unit) {
+        val loginPageConnection = connect(loginPath, useSsl = true)
         executeRequest(loginPageConnection, errorListener) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")
             val authenticityToken = it.select("input[name=authenticity_token]").attr("value")
 
-            val connection = connect("/login", useSsl = true).
+            val connection = connect(loginPath, useSsl = true).
                 method(Connection.Method.POST).
                 cookie("soup_session_id", sessionId).
                 data("login", userName).
@@ -34,8 +38,8 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: () -> Unit, listener: (Collection<Post>) -> Unit):
-        AsyncTask<Void, Void, Document?> {
+    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ResponseStatus) -> Unit, listener: (Collection<Post>) -> Unit):
+        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
         val path = when (collection) {
             PostCollection.FRIENDS -> "/friends"
             PostCollection.FOF -> "/fof"
@@ -53,8 +57,8 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchMyPosts(lastPost: Post?, cookies: Map<String, String>?, errorListener: () -> Unit,
-        listener: (Collection<Post>, Map<String, String>) -> Unit): AsyncTask<Void, Void, Document?> {
+    fun fetchMyPosts(lastPost: Post?, cookies: Map<String, String>?, errorListener: (ResponseStatus) -> Unit,
+        listener: (Collection<Post>, Map<String, String>) -> Unit): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
         val path = "/" + if (lastPost != null) "since/${lastPost.id}" else ""
         val subdomain = application.currentSession!!.userName
 
@@ -73,13 +77,13 @@ class Api(val application: Application) {
         }
     }
 
-    fun repost(post: Post, errorListener: () -> Unit, listener: () -> Unit) {
+    fun repost(post: Post, errorListener: (ResponseStatus) -> Unit, listener: () -> Unit) {
         val connection = connect("/remote/repost").
             method(Connection.Method.POST).
             data("parent_id", post.id.toString())
-        val wrappingErrorListener = {
+        val wrappingErrorListener: (ResponseStatus) -> Unit = {
             post.repostState = Post.RepostState.NOT_REPOSTED
-            errorListener()
+            errorListener(it)
         }
 
         post.repostState = Post.RepostState.REPOSTING
@@ -108,23 +112,38 @@ class Api(val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: () -> Unit, listener: ((Document) -> Unit)):
-        AsyncTask<Void, Void, Document?> {
-        val task = object: AsyncTask<Void, Void, Document?>() {
-            override fun doInBackground(vararg params: Void?): Document? {
+    private fun executeRequest(connection: Connection, errorListener: (ResponseStatus) -> Unit, listener: ((Document) -> Unit)):
+        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
+        val task = object: AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>() {
+            override fun doInBackground(vararg params: Void?): Pair<ResponseStatus, Document?> {
+                var responseStatus: ResponseStatus = ResponseStatus.OK
+                var document: Document? = null
+
                 try {
-                    return connection.execute().parse()
+                    val originalUrl = connection.request().url()
+                    val response = connection.execute()
+                    if (!originalUrl.getPath().equals(loginPath) && response.url().getPath().equals(loginPath)) {
+                        responseStatus = ResponseStatus.FORBIDDEN
+                    } else {
+                        document = response.parse()
+                    }
                 } catch (e: IOException) {
-                    return null
+                    responseStatus = ResponseStatus.SERVER_ERROR
                 }
+
+                return Pair(responseStatus, document)
             }
 
-            override fun onPostExecute(document: Document?) {
+            override fun onPostExecute(pair: Pair<ResponseStatus, Document?>) {
                 runningTasks.remove(this)
-                if (document != null) {
+
+                val responseStatus = pair.first
+                val document = pair.second
+
+                if (responseStatus == ResponseStatus.OK && document != null) {
                     listener(document)
                 } else {
-                    errorListener()
+                    errorListener(responseStatus)
                 }
             }
         }
@@ -156,4 +175,10 @@ class Api(val application: Application) {
         }
     }
 
+}
+
+enum class ResponseStatus {
+    OK,
+    FORBIDDEN,
+    SERVER_ERROR
 }

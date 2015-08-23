@@ -17,16 +17,21 @@ class LoginActivity() : Activity() {
 
         setContentView(R.layout.activity_login)
 
+        userNameEditText.setText((getApplication() as Application).previousUserName)
         userNameEditText.addTextChangedListener(textWatcher)
         passwordEditText.addTextChangedListener(textWatcher)
         logInButton.setOnClickListener { logIn() }
+
+        if (userNameEditText.getText().length() > 0) {
+            passwordEditText.requestFocus()
+        }
     }
 
     private fun logIn() {
         val userName = userNameEditText.getText().toString()
         val password = passwordEditText.getText().toString()
         val application = getApplication() as Application
-        val errorListener = {
+        val errorListener: (ResponseStatus) -> Unit = {
             handleResponseError(R.string.network_error)
         }
         logInButton.setEnabled(false)
@@ -50,7 +55,6 @@ class LoginActivity() : Activity() {
     }
 
     private val textWatcher = object: TextWatcher {
-
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             val userNamePresent = userNameEditText.getText().length() > 0
             val passwordPresent = passwordEditText.getText().length() > 0

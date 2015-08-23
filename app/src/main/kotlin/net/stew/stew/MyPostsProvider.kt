@@ -8,7 +8,7 @@ class MyPostsProvider(listener: PostsProvider.Listener, application: Application
 
     private var meCookies: Map<String, String>? = null
 
-    override protected fun fetchPosts(lastPost: Post?): AsyncTask<Void, Void, Document?> {
+    override protected fun fetchPosts(lastPost: Post?): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
         return application.api.fetchMyPosts(lastPost, meCookies, errorListener) { posts, cookies ->
             meCookies = cookies
             successListener(posts)

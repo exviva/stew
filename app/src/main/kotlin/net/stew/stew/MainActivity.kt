@@ -98,6 +98,11 @@ class MainActivity : AppCompatActivity() {
         loadingIndicator.animate().translationY(0.0f)
     }
 
+    fun logOut() {
+        (getApplication() as Application).logOut()
+        requireCurrentSession()
+    }
+
     private fun setActivePostsAdapter(postCollection: PostCollection, load: Boolean) {
         if (activePostsAdapter != null) {
             activePostsAdapter!!.deactivate()
@@ -109,11 +114,6 @@ class MainActivity : AppCompatActivity() {
         setTitle(getResources().getStringArray(R.array.post_collections)[postCollection.ordinal()])
         postsView.setAdapter(activePostsAdapter)
         drawerAdapter!!.setActiveItemPosition(postCollection.ordinal())
-    }
-
-    private fun logOut() {
-        (getApplication() as Application).logOut()
-        requireCurrentSession()
     }
 
     private fun requireCurrentSession(): Boolean {

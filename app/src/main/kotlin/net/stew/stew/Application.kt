@@ -6,6 +6,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 class Application : android.app.Application() {
 
     var currentSession: CurrentSession? = null
+    var previousUserName: String? = null
     val api = Api(this)
     val postsStore = PostsStore()
 
@@ -17,6 +18,7 @@ class Application : android.app.Application() {
     }
 
     fun setCurrentSession(userName: String, userIdCookie: String, sessionIdCookie: String, csrfToken: String) {
+        previousUserName = userName
         currentSession = CurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
         val preferences = getPreferences()
         preferences.edit().
@@ -33,7 +35,6 @@ class Application : android.app.Application() {
         currentSession = null
         val preferences = getPreferences()
         preferences.edit().
-            remove("userName").
             remove("userIdCookie").
             remove("sessionIdCookie").
             remove("csrfToken").
@@ -50,6 +51,8 @@ class Application : android.app.Application() {
         if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
             setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
         }
+
+        previousUserName = userName
     }
 
     private fun getPreferences() = getSharedPreferences("Application", Context.MODE_PRIVATE)
