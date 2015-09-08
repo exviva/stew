@@ -1,6 +1,7 @@
 package net.stew.stew
 
 import android.graphics.drawable.Animatable
+import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -84,7 +85,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val viewHolder = PostViewHolder(view)
         val progressDrawable = ProgressBarDrawable()
 
-        progressDrawable.setColor(activity.getResources().getColor(R.color.accent))
+        progressDrawable.setColor(ContextCompat.getColor(activity, R.color.accent))
         progressDrawable.setBarWidth(activity.getResources().getDimensionPixelSize(R.dimen.image_progress_bar_height))
 
         val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.getResources()).

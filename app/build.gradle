@@ -2,13 +2,13 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 23
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "net.stew.stew"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 23
         versionCode 4
         versionName "0.2.0"
     }
@@ -34,9 +34,9 @@ android {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:cardview-v7:22.2.1'
-    compile 'com.android.support:recyclerview-v7:22.2.1'
-    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:cardview-v7:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:appcompat-v7:23.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.jsoup:jsoup:1.8.2'
     compile 'com.facebook.fresco:fresco:0.5.3'

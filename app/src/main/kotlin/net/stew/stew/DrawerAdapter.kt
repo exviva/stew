@@ -2,6 +2,7 @@ package net.stew.stew
 
 import android.content.Context
 import android.graphics.Typeface
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,7 +31,7 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         }
 
         textView.setText(getItem(position))
-        textView.setTextColor(context.getResources().getColor(if (isActive) R.color.primary else android.R.color.primary_text_light))
+        textView.setTextColor(ContextCompat.getColor(context, if (isActive) R.color.primary else android.R.color.primary_text_light))
 
         return textView
     }
