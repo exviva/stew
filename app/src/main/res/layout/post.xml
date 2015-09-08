@@ -74,6 +74,13 @@
             android:layout_height="300dp"
             fresco:actualImageScaleType="centerCrop" />
 
+        <TextView
+            android:id="@+id/descriptionTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:textStyle="italic" />
+
         <Button
             android:id="@+id/repostButton"
             android:layout_width="match_parent"

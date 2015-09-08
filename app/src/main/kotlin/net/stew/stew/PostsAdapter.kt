@@ -21,23 +21,14 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val postImageView: SimpleDraweeView
-        val repostButton: Button
-        val authorshipLayout: View
-        val authorNameTextView: TextView
-        val authorImageView: SimpleDraweeView
-        val groupNameTextView: TextView
-        val groupImageView: SimpleDraweeView
-
-        init {
-            postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
-            repostButton = itemView.findViewById(R.id.repostButton) as Button
-            authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
-            authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
-            authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
-            groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
-            groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
-        }
+        val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
+        val repostButton = itemView.findViewById(R.id.repostButton) as Button
+        val authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
+        val authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
+        val authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
+        val groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
+        val groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
+        val description = itemView.findViewById(R.id.descriptionTextView) as TextView
 
     }
 
@@ -89,8 +80,8 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         progressDrawable.setBarWidth(activity.getResources().getDimensionPixelSize(R.dimen.image_progress_bar_height))
 
         val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.getResources()).
-            setProgressBarImage(progressDrawable).
-            build()
+                setProgressBarImage(progressDrawable).
+                build()
 
         viewHolder.postImageView.setHierarchy(draweeHierarchy)
 
@@ -100,23 +91,29 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts.get(i)
         val controller = Fresco.newDraweeControllerBuilder().
-            setUri(post.uri).
-            setAutoPlayAnimations(true).
-            setOldController(postViewHolder.postImageView.getController()).
-            setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                    postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
-                    postViewHolder.postImageView.setOnClickListener {
-                        FullscreenImageActivity.start(activity, post.uri, it)
+                setUri(post.uri).
+                setAutoPlayAnimations(true).
+                setOldController(postViewHolder.postImageView.getController()).
+                setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                        postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
+                        postViewHolder.postImageView.setOnClickListener {
+                            FullscreenImageActivity.start(activity, post.uri, it)
+                        }
                     }
-                }
-            }).
-            build()
+                }).
+                build()
 
         postViewHolder.postImageView.let {
             it.setController(controller)
             it.setOnClickListener(null)
         }
+
+        postViewHolder.description.let {
+            it.setVisibility(if (post.description.isBlank()) View.GONE else View.VISIBLE)
+            it.setText(post.description)
+        }
+
         postViewHolder.repostButton.let {
             it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
             it.setEnabled(false)

@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
             val layoutManager = LinearLayoutManager(this)
             postsAdapters = PostCollection.values().map { it to PostsAdapter(this, it) }.toMap()
 
-            postsView.setHasFixedSize(true)
             postsView.setLayoutManager(layoutManager)
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
