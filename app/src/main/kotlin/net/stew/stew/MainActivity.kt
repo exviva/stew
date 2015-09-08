@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
 
             postsView.setHasFixedSize(true)
             postsView.setLayoutManager(layoutManager)
-            postsView.addOnScrollListener(object: RecyclerView.OnScrollListener() {
+            postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                     if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 1) {
                         activePostsAdapter!!.loadMore()
@@ -42,7 +42,10 @@ class MainActivity : AppCompatActivity() {
             })
 
             drawerAdapter = DrawerAdapter(this)
-            val activePostCollection = savedInstanceState?.getSerializable(ACTIVE_POST_COLLECTION_TAG) as PostCollection? ?: PostCollection.FRIENDS
+
+            val activePostCollection = if (savedInstanceState == null)
+                PostCollection.FRIENDS else
+                PostCollection.values()[savedInstanceState.getInt(ACTIVE_POST_COLLECTION_TAG)]
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
@@ -87,7 +90,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putSerializable(ACTIVE_POST_COLLECTION_TAG, activePostsAdapter!!.collection as Serializable)
+        outState.putInt(ACTIVE_POST_COLLECTION_TAG, activePostsAdapter!!.collection.ordinal())
     }
 
     fun showLoadingIndicator() {
