@@ -25,10 +25,10 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         val isActive = position == activeItemPosition
         val textView = when (convertView) {
             null -> {
-                LayoutInflater.from(context).inflate(R.layout.drawer_list_item, parent, false) as TextView
+                LayoutInflater.from(context).inflate(R.layout.drawer_list_item, parent, false)
             }
-            else -> convertView as TextView
-        }
+            else -> convertView
+        } as TextView
 
         textView.setText(getItem(position))
         textView.setTextColor(ContextCompat.getColor(context, if (isActive) R.color.primary else android.R.color.primary_text_light))
