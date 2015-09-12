@@ -59,9 +59,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         if (load) {
             loadMode = LoadMode.REPLACE
             load()
-        }
-
-        if (postsProvider.isLoading()) {
+        } else if (postsProvider.isLoading()) {
             showLoadingIndicator()
         }
     }
