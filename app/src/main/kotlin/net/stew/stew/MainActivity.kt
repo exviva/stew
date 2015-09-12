@@ -12,7 +12,6 @@ import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
 import kotlinx.android.synthetic.activity_main.loadingIndicator
 import kotlinx.android.synthetic.activity_main.postsView
-import java.io.Serializable
 
 class MainActivity : AppCompatActivity() {
 
@@ -34,7 +33,7 @@ class MainActivity : AppCompatActivity() {
             postsView.setLayoutManager(layoutManager)
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 1) {
+                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 3) {
                         activePostsAdapter!!.loadMore()
                     }
                 }
