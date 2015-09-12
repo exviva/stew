@@ -46,10 +46,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     init {
         application = activity.getApplication() as Application
-        postsProvider = when (collection) {
-            PostCollection.Me -> MyPostsProvider(this, application)
-            else -> OthersPostsProvider(this, collection, application)
-        }
+        postsProvider = PostsProvider(application, collection, this)
         posts = application.postsStore.restore(collection)
     }
 

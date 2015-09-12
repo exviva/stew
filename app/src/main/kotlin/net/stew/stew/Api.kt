@@ -15,7 +15,6 @@ class Api(val application: Application) {
     }
 
     private val runningTasks = arrayListOf<AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>>()
-    private var meCookies: Map<String, String>? = null
 
     fun logIn(userName: String, password: String, errorListener: (ResponseStatus) -> Unit, listener: (String?, String?, String?) -> Unit) {
         val loginPageConnection = connect(loginPath, useSsl = true)
@@ -39,36 +38,23 @@ class Api(val application: Application) {
         }
     }
 
-    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ResponseStatus) -> Unit, listener: (Collection<Post>) -> Unit):
-        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
-        val connection = connect(collection.path)
+    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ResponseStatus) -> Unit,
+        listener: (Collection<Post>) -> Unit): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
 
-        if (lastPost != null) {
+        val subdomain = (collection.subdomain ?: "www").replace(":current_user", application.currentSession!!.userName)
+        var path = collection.path ?: "/"
+
+        if (lastPost != null && collection.subdomain != null) {
+            path += "since/${lastPost.id}"
+        }
+
+        val connection = connect(path, subdomain)
+
+        if (lastPost != null && collection.subdomain == null) {
             connection.data("since", lastPost.id.toString())
         }
 
         return executeRequest(connection, errorListener) {
-            listener(parsePosts(it))
-        }
-    }
-
-    fun fetchMyPosts(lastPost: Post?, errorListener: (ResponseStatus) -> Unit,
-        listener: (Collection<Post>) -> Unit): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
-        val path = "/" + if (lastPost != null) "since/${lastPost.id}" else ""
-        val subdomain = application.currentSession!!.userName
-
-        val connection = connect(path, subdomain)
-
-        if (lastPost != null) {
-            connection.data("mode", "own")
-        }
-
-        if (meCookies != null) {
-            connection.cookies(meCookies)
-        }
-
-        return executeRequest(connection, errorListener) {
-            meCookies = connection.response().cookies()
             listener(parsePosts(it))
         }
     }
@@ -92,7 +78,6 @@ class Api(val application: Application) {
     fun clear() {
         runningTasks.forEach { it.cancel(true) }
         runningTasks.clear()
-        meCookies = null
     }
 
     private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {

@@ -3,7 +3,10 @@ package net.stew.stew
 import android.os.AsyncTask
 import org.jsoup.nodes.Document
 
-abstract class PostsProvider(private val listener: PostsProvider.Listener, protected val application: Application) {
+class PostsProvider(
+        private val application: Application,
+        private val collection: PostCollection,
+        private val listener: PostsProvider.Listener) {
 
     public interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
@@ -31,12 +34,10 @@ abstract class PostsProvider(private val listener: PostsProvider.Listener, prote
             }
         }
 
-        loadingTask = fetchPosts(lastPost)
+        loadingTask = application.api.fetchPosts(collection, lastPost, errorListener, successListener)
         loadingTaskIsForMorePosts = lastPost != null
     }
 
     fun isLoading(): Boolean = loadingTask != null
-
-    abstract protected fun fetchPosts(lastPost: Post?): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>
 
 }
