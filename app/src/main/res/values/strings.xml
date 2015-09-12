@@ -20,6 +20,7 @@
     <string name="repost">Repost</string>
     <string name="reposted">Reposted</string>
     <string name="reposting">Reposting…</string>
+    <string name="soup_of_user">%1$s\'s soup</string>
     <string name="userNameHint">username</string>
     <string name="version">Version %1$s</string>
 </resources>

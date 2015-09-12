@@ -37,18 +37,12 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         APPEND
     }
 
-    private val application: Application
-    private var posts: List<Post>
-    private val postsProvider: PostsProvider
+    private val application = activity.getApplication() as Application
+    private var posts = application.postsStore.restore(collection)
+    private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
     private var isActive = false
 
-
-    init {
-        application = activity.getApplication() as Application
-        postsProvider = PostsProvider(application, collection, this)
-        posts = application.postsStore.restore(collection)
-    }
 
     fun activate(load: Boolean) {
         isActive = true
@@ -133,12 +127,16 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             it.setText(stringId)
         }
 
-        if (collection == PostCollection.Me) {
+        if (collection.subdomain != null) {
             postViewHolder.authorshipLayout.setVisibility(View.GONE)
         } else {
             val groupVisibility = if (post.group != null) View.VISIBLE else View.GONE
 
             postViewHolder.authorshipLayout.setVisibility(View.VISIBLE)
+            postViewHolder.authorshipLayout.setOnClickListener {
+                val collection = SubdomainPostCollection(post.author.name)
+                activity.setActivePostsAdapter(collection, true)
+            }
 
             postViewHolder.authorNameTextView.setText(post.author.name)
             postViewHolder.authorImageView.setImageURI(post.author.imageUri)
