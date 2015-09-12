@@ -47,7 +47,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     init {
         application = activity.getApplication() as Application
         postsProvider = when (collection) {
-            PostCollection.ME -> MyPostsProvider(this, application)
+            PostCollection.Me -> MyPostsProvider(this, application)
             else -> OthersPostsProvider(this, collection, application)
         }
         posts = application.postsStore.restore(collection)
@@ -113,7 +113,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         }
 
         postViewHolder.repostButton.let {
-            it.setVisibility(if (collection != PostCollection.ME) View.VISIBLE else View.GONE)
+            it.setVisibility(if (collection != PostCollection.Me) View.VISIBLE else View.GONE)
             it.setEnabled(false)
             it.setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
@@ -136,7 +136,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             it.setText(stringId)
         }
 
-        if (collection == PostCollection.ME) {
+        if (collection == PostCollection.Me) {
             postViewHolder.authorshipLayout.setVisibility(View.GONE)
         } else {
             val groupVisibility = if (post.group != null) View.VISIBLE else View.GONE

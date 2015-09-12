@@ -30,7 +30,7 @@ class Application : android.app.Application() {
     }
 
     fun logOut() {
-        api.cancelRunningRequests()
+        api.clear()
         postsStore.clear()
         currentSession = null
         val preferences = getPreferences()

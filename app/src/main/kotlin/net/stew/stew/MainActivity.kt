@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
             setContentView(R.layout.activity_main)
 
             val layoutManager = LinearLayoutManager(this)
-            postsAdapters = PostCollection.values().map { it to PostsAdapter(this, it) }.toMap()
+            postsAdapters = PostCollection.Predefined.map { it to PostsAdapter(this, it) }.toMap()
 
             postsView.setLayoutManager(layoutManager)
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -43,16 +43,16 @@ class MainActivity : AppCompatActivity() {
             drawerAdapter = DrawerAdapter(this)
 
             val activePostCollection = if (savedInstanceState == null)
-                PostCollection.FRIENDS else
-                PostCollection.values()[savedInstanceState.getInt(ACTIVE_POST_COLLECTION_TAG)]
+                PostCollection.Friends else
+                PostCollection.Predefined[savedInstanceState.getInt(ACTIVE_POST_COLLECTION_TAG)]
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
             drawerListView.setAdapter(drawerAdapter)
             drawerListView.setOnItemClickListener { parent, view, position, id ->
-                val postCollectionValuesSize = PostCollection.values().size()
+                val postCollectionValuesSize = PostCollection.Predefined.size()
                 if (position < postCollectionValuesSize) {
-                    setActivePostsAdapter(PostCollection.values()[position], true)
+                    setActivePostsAdapter(PostCollection.Predefined[position], true)
                 } else if (position == postCollectionValuesSize) {
                     logOut()
                 } else {
