@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
+import android.view.View
 import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
 import kotlinx.android.synthetic.activity_main.loadingIndicator
@@ -92,11 +93,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showLoadingIndicator() {
-        loadingIndicator.animate().translationY(getResources().getDimensionPixelSize(R.dimen.loading_indicator_bottom_margin).toFloat())
+        loadingIndicator.setVisibility(View.VISIBLE)
+        loadingIndicator.animate().alpha(1.0f);
     }
 
     fun hideLoadingIndicator() {
-        loadingIndicator.animate().translationY(0.0f)
+        loadingIndicator.animate().alpha(0.0f);
     }
 
     fun logOut() {

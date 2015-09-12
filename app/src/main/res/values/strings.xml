@@ -7,7 +7,6 @@
     <string name="forbidden">Your session expired, please log in again</string>
     <string name="headline">A simple soup.io app</string>
     <string name="invalid_credentials">Invalid username/password, please try again</string>
-    <string name="loading">Loading…</string>
     <string name="log_in">Log in</string>
     <string name="log_out">Log out</string>
     <string name="logging_in">Logging in…</string>

@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="image_progress_bar_height">2dp</dimen>
-    <dimen name="loading_indicator_bottom_margin">-40dp</dimen>
-    <dimen name="loading_indicator_height">40dp</dimen>
 </resources>

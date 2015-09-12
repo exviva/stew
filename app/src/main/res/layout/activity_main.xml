@@ -17,31 +17,16 @@
             android:layout_marginTop="4dp"
             android:layout_marginBottom="4dp" />
 
-        <LinearLayout
+        <ProgressBar
             android:id="@+id/loadingIndicator"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/loading_indicator_height"
-            android:layout_gravity="bottom"
-            android:gravity="center"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="bottom|right"
             android:background="#88000000"
-            android:padding="8dp"
-            android:layout_marginBottom="@dimen/loading_indicator_bottom_margin">
-
-            <ProgressBar
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_marginRight="8dp"
-                android:indeterminateDrawable="@drawable/progress"
-                tools:ignore="RtlHardcoded" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/loading"
-                android:textColor="@android:color/white" />
-
-        </LinearLayout>
+            android:padding="4dp"
+            android:indeterminateDrawable="@drawable/progress"
+            android:visibility="gone"
+            tools:ignore="RtlHardcoded" />
 
     </FrameLayout>
 
