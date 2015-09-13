@@ -24,8 +24,10 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
         val authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
+        val authorLayout = itemView.findViewById(R.id.authorLayout)
         val authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
         val authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
+        val groupLayout = itemView.findViewById(R.id.groupLayout)
         val groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
         val groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
         val description = itemView.findViewById(R.id.descriptionTextView) as TextView
@@ -130,21 +132,28 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         if (collection.subdomain != null) {
             postViewHolder.authorshipLayout.setVisibility(View.GONE)
         } else {
-            val groupVisibility = if (post.group != null) View.VISIBLE else View.GONE
+            val group = post.group
 
             postViewHolder.authorshipLayout.setVisibility(View.VISIBLE)
-            postViewHolder.authorshipLayout.setOnClickListener {
+
+            postViewHolder.authorNameTextView.setText(post.author.name)
+            postViewHolder.authorImageView.setImageURI(post.author.imageUri)
+            postViewHolder.authorLayout.setOnClickListener {
                 val collection = SubdomainPostCollection(post.author.name)
                 activity.setActivePostsAdapter(collection, true)
             }
 
-            postViewHolder.authorNameTextView.setText(post.author.name)
-            postViewHolder.authorImageView.setImageURI(post.author.imageUri)
-
-            postViewHolder.groupNameTextView.setText(post.group?.name)
-            postViewHolder.groupNameTextView.setVisibility(groupVisibility)
-            postViewHolder.groupImageView.setImageURI(post.group?.imageUri)
-            postViewHolder.groupImageView.setVisibility(groupVisibility)
+            if (group != null) {
+                postViewHolder.groupLayout.setVisibility(View.VISIBLE)
+                postViewHolder.groupNameTextView.setText(group.name)
+                postViewHolder.groupImageView.setImageURI(group.imageUri)
+                postViewHolder.groupLayout.setOnClickListener {
+                    val collection = SubdomainPostCollection(group.name)
+                    activity.setActivePostsAdapter(collection, true)
+                }
+            } else {
+                postViewHolder.groupLayout.setVisibility(View.GONE)
+            }
         }
     }
 

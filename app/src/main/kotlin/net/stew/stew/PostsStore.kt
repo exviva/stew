@@ -13,7 +13,7 @@ class PostsStore {
     }
 
     fun restore(collection: PostCollection) : List<Post> {
-        if (!(collection in postsByCollection)) {
+        if (collection !in postsByCollection) {
             postsByCollection.put(collection, arrayListOf<Post>())
         }
 

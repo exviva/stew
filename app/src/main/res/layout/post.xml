@@ -16,57 +16,63 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/authorshipLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="8dp"
+            android:baselineAligned="false"
             android:background="@android:color/white">
 
-            <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/authorImageView"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerVertical="true"
-                android:layout_marginRight="8dp"
-                android:layout_marginEnd="8dp"
-                fresco:actualImageScaleType="centerCrop"
-                fresco:roundAsCircle="true"
-                fresco:roundWithOverlayColor="@android:color/white" />
-
-            <TextView
-                android:id="@+id/authorNameTextView"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:id="@+id/authorLayout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_toRightOf="@id/authorImageView"
-                android:layout_toEndOf="@id/authorImageView" />
+                android:gravity="center|start"
+                android:layout_weight="0.5">
 
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/authorImageView"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
+                    fresco:actualImageScaleType="centerCrop"
+                    fresco:roundAsCircle="true"
+                    fresco:roundWithOverlayColor="@android:color/white" />
 
-            <TextView
-                android:id="@+id/groupNameTextView"
-                android:layout_width="wrap_content"
+                <TextView
+                    android:id="@+id/authorNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/groupLayout"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_centerVertical="true"
-                android:layout_alignParentRight="true"
-                android:layout_alignParentEnd="true" />
+                android:gravity="center|end"
+                android:layout_weight="0.5">
 
-            <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/groupImageView"
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="16dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginRight="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_toLeftOf="@id/groupNameTextView"
-                android:layout_toStartOf="@id/groupNameTextView"
-                fresco:actualImageScaleType="centerCrop"
-                fresco:roundAsCircle="true"
-                fresco:roundWithOverlayColor="@android:color/white" />
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/groupImageView"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:layout_marginRight="8dp"
+                    android:layout_marginEnd="8dp"
+                    fresco:actualImageScaleType="centerCrop"
+                    fresco:roundAsCircle="true"
+                    fresco:roundWithOverlayColor="@android:color/white" />
 
-        </RelativeLayout>
+                <TextView
+                    android:id="@+id/groupNameTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+            </LinearLayout>
+
+        </LinearLayout>
 
         <com.facebook.drawee.view.SimpleDraweeView
             android:id="@+id/postImageView"
