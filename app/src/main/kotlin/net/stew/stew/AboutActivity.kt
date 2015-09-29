@@ -11,7 +11,7 @@ class AboutActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_about)
 
-        versionTextView.setText(getString(R.string.version, BuildConfig.VERSION_NAME))
+        versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
     }
 
 }

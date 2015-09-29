@@ -36,10 +36,10 @@ class MainActivity : AppCompatActivity() {
             val layoutManager = LinearLayoutManager(this)
             postsAdapters = HashMap(PostCollection.Predefined.map { it to PostsAdapter(this, it) }.toMap())
 
-            postsView.setLayoutManager(layoutManager)
+            postsView.layoutManager = layoutManager
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.getItemCount() - 3) {
+                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.itemCount - 3) {
                         activePostsAdapter!!.loadMore()
                     }
                 }
@@ -59,7 +59,7 @@ class MainActivity : AppCompatActivity() {
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
-            drawerListView.setAdapter(drawerAdapter)
+            drawerListView.adapter = drawerAdapter
             drawerListView.setOnItemClickListener { parent, view, position, id ->
                 val postCollectionValuesSize = PostCollection.Predefined.size()
                 if (position < postCollectionValuesSize) {
@@ -67,15 +67,15 @@ class MainActivity : AppCompatActivity() {
                 } else if (position == postCollectionValuesSize) {
                     logOut()
                 } else {
-                    startActivity(Intent(this, javaClass<AboutActivity>()))
+                    startActivity(Intent(this, AboutActivity::class.java))
                 }
                 drawerLayout.closeDrawers()
             }
 
             drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
             drawerLayout.setDrawerListener(drawerToggle)
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true)
-            getSupportActionBar().setHomeButtonEnabled(true)
+            supportActionBar.setDisplayHomeAsUpEnabled(true)
+            supportActionBar.setHomeButtonEnabled(true)
         }
     }
 
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showLoadingIndicator() {
-        loadingIndicator.setVisibility(View.VISIBLE)
+        loadingIndicator.visibility = View.VISIBLE
         loadingIndicator.animate().alpha(1.0f);
     }
 
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun logOut() {
-        (getApplication() as Application).logOut()
+        (application as Application).logOut()
         requireCurrentSession()
     }
 
@@ -151,17 +151,16 @@ class MainActivity : AppCompatActivity() {
             PostsAdapter(this, postCollection)
 
         activePostsAdapter!!.activate(load)
-        postsView.setAdapter(activePostsAdapter)
+        postsView.adapter = activePostsAdapter
         drawerAdapter!!.setActiveItemPosition(postCollection.ordinal())
-        setTitle(if (postCollection.isPredefined())
-            getResources().getStringArray(R.array.post_collections)[postCollection.ordinal()] else
+        title = if (postCollection.isPredefined())
+            resources.getStringArray(R.array.post_collections)[postCollection.ordinal()] else
             getString(R.string.soup_of_user, postCollection.subdomain)
-        )
     }
 
     private fun requireCurrentSession(): Boolean {
-        if ((getApplication() as Application).currentSession == null) {
-            val intent = Intent(this, javaClass<LoginActivity>())
+        if ((application as Application).currentSession == null) {
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
             return false

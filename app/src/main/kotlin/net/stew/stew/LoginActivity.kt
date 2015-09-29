@@ -17,29 +17,29 @@ class LoginActivity() : Activity() {
 
         setContentView(R.layout.activity_login)
 
-        userNameEditText.setText((getApplication() as Application).previousUserName)
+        userNameEditText.setText((application as Application).previousUserName)
         userNameEditText.addTextChangedListener(textWatcher)
         passwordEditText.addTextChangedListener(textWatcher)
         logInButton.setOnClickListener { logIn() }
 
-        if (userNameEditText.getText().length() > 0) {
+        if (userNameEditText.text.length() > 0) {
             passwordEditText.requestFocus()
         }
     }
 
     private fun logIn() {
-        val userName = userNameEditText.getText().toString()
-        val password = passwordEditText.getText().toString()
-        val application = getApplication() as Application
+        val userName = userNameEditText.text.toString()
+        val password = passwordEditText.text.toString()
+        val application = application as Application
         val errorListener: (ResponseStatus) -> Unit = {
             handleResponseError(R.string.network_error)
         }
-        logInButton.setEnabled(false)
+        logInButton.isEnabled = false
         logInButton.setText(R.string.logging_in)
         application.api.logIn(userName, password, errorListener) { userIdCookie, sessionIdCookie, csrfToken ->
             if (userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
                 application.setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
-                val intent = Intent(this, javaClass<MainActivity>())
+                val intent = Intent(this, MainActivity::class.java)
                 startActivity(intent)
                 finish()
             } else {
@@ -49,16 +49,16 @@ class LoginActivity() : Activity() {
     }
 
     private fun handleResponseError(toastMessageId: Int) {
-        logInButton.setEnabled(true)
+        logInButton.isEnabled = true
         logInButton.setText(R.string.log_in)
         Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT).show()
     }
 
     private val textWatcher = object: TextWatcher {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            val userNamePresent = userNameEditText.getText().length() > 0
-            val passwordPresent = passwordEditText.getText().length() > 0
-            logInButton.setEnabled(userNamePresent && passwordPresent)
+            val userNamePresent = userNameEditText.text.length() > 0
+            val passwordPresent = passwordEditText.text.length() > 0
+            logInButton.isEnabled = userNamePresent && passwordPresent
         }
 
         override fun afterTextChanged(s: Editable?) {}

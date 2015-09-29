@@ -81,7 +81,7 @@ class Api(val application: Application) {
     }
 
     private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {
-        val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io${path}").
+        val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io$path").
             timeout(10000)
         val currentSession = application.currentSession
 
@@ -104,7 +104,7 @@ class Api(val application: Application) {
                 try {
                     val originalUrl = connection.request().url()
                     val response = connection.execute()
-                    if (!originalUrl.getPath().equals(loginPath) && response.url().getPath().equals(loginPath)) {
+                    if (!originalUrl.path.equals(loginPath) && response.url().path.equals(loginPath)) {
                         responseStatus = ResponseStatus.FORBIDDEN
                     } else {
                         document = response.parse()

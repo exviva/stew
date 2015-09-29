@@ -13,10 +13,10 @@ class FullscreenImageActivity() : Activity() {
 
     companion object {
         fun start(activity: Activity, uri: Uri, view: View) {
-            val intent = Intent(activity, javaClass<FullscreenImageActivity>())
+            val intent = Intent(activity, FullscreenImageActivity::class.java)
             intent.putExtra("uri", uri)
-            val width = 0.5 * view.getWidth()
-            val height = 0.5 * view.getHeight()
+            val width = 0.5 * view.width
+            val height = 0.5 * view.height
             val bundle = ActivityOptions.makeScaleUpAnimation(view, width.toInt(), height.toInt(), 0, 0).toBundle()
             activity.startActivity(intent, bundle)
         }
@@ -27,12 +27,12 @@ class FullscreenImageActivity() : Activity() {
 
         setContentView(R.layout.activity_fullscreen_image)
 
-        val uri: Uri = getIntent().getParcelableExtra("uri")
+        val uri: Uri = intent.getParcelableExtra("uri")
         val controller = Fresco.newDraweeControllerBuilder().
             setUri(uri).
             setAutoPlayAnimations(true).
             build()
-        imageView.setController(controller)
+        imageView.controller = controller
         imageView.setOnClickListener { finish() }
     }
 

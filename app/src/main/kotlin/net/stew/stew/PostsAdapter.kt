@@ -39,7 +39,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         APPEND
     }
 
-    private val application = activity.getApplication() as Application
+    private val application = activity.application as Application
     private var posts = application.postsStore.restore(collection)
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
@@ -63,18 +63,18 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
-        val view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.post, viewGroup, false)
+        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
         val viewHolder = PostViewHolder(view)
         val progressDrawable = ProgressBarDrawable()
 
-        progressDrawable.setColor(ContextCompat.getColor(activity, R.color.accent))
-        progressDrawable.setBarWidth(activity.getResources().getDimensionPixelSize(R.dimen.image_progress_bar_height))
+        progressDrawable.color = ContextCompat.getColor(activity, R.color.accent)
+        progressDrawable.barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
 
-        val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.getResources()).
+        val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.resources).
                 setProgressBarImage(progressDrawable).
                 build()
 
-        viewHolder.postImageView.setHierarchy(draweeHierarchy)
+        viewHolder.postImageView.hierarchy = draweeHierarchy
 
         return viewHolder
     }
@@ -84,10 +84,10 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val controller = Fresco.newDraweeControllerBuilder().
                 setUri(post.uri).
                 setAutoPlayAnimations(true).
-                setOldController(postViewHolder.postImageView.getController()).
+                setOldController(postViewHolder.postImageView.controller).
                 setControllerListener(object : BaseControllerListener<ImageInfo>() {
                     override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                        postViewHolder.repostButton.setEnabled(post.repostState == Post.RepostState.NOT_REPOSTED)
+                        postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
                         postViewHolder.postImageView.setOnClickListener {
                             FullscreenImageActivity.start(activity, post.uri, it)
                         }
@@ -96,18 +96,18 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                 build()
 
         postViewHolder.postImageView.let {
-            it.setController(controller)
+            it.controller = controller
             it.setOnClickListener(null)
         }
 
         postViewHolder.description.let {
-            it.setVisibility(if (post.description.isBlank()) View.GONE else View.VISIBLE)
-            it.setText(post.description)
+            it.visibility = if (post.description.isBlank()) View.GONE else View.VISIBLE
+            it.text = post.description
         }
 
         postViewHolder.repostButton.let {
-            it.setVisibility(if (collection != PostCollection.Me) View.VISIBLE else View.GONE)
-            it.setEnabled(false)
+            it.visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
+            it.isEnabled = false
             it.setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
                     if (it == ResponseStatus.FORBIDDEN) {
@@ -130,13 +130,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         }
 
         if (collection.subdomain != null) {
-            postViewHolder.authorshipLayout.setVisibility(View.GONE)
+            postViewHolder.authorshipLayout.visibility = View.GONE
         } else {
             val group = post.group
 
-            postViewHolder.authorshipLayout.setVisibility(View.VISIBLE)
+            postViewHolder.authorshipLayout.visibility = View.VISIBLE
 
-            postViewHolder.authorNameTextView.setText(post.author.name)
+            postViewHolder.authorNameTextView.text = post.author.name
             postViewHolder.authorImageView.setImageURI(post.author.imageUri)
             postViewHolder.authorLayout.setOnClickListener {
                 val collection = SubdomainPostCollection(post.author.name)
@@ -144,15 +144,15 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             }
 
             if (group != null) {
-                postViewHolder.groupLayout.setVisibility(View.VISIBLE)
-                postViewHolder.groupNameTextView.setText(group.name)
+                postViewHolder.groupLayout.visibility = View.VISIBLE
+                postViewHolder.groupNameTextView.text = group.name
                 postViewHolder.groupImageView.setImageURI(group.imageUri)
                 postViewHolder.groupLayout.setOnClickListener {
                     val collection = SubdomainPostCollection(group.name)
                     activity.setActivePostsAdapter(collection, true)
                 }
             } else {
-                postViewHolder.groupLayout.setVisibility(View.GONE)
+                postViewHolder.groupLayout.visibility = View.GONE
             }
         }
     }
