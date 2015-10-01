@@ -3,6 +3,7 @@ package net.stew.stew
 import android.net.Uri
 import android.os.AsyncTask
 import org.jsoup.Connection
+import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
@@ -110,7 +111,8 @@ class Api(val application: Application) {
                         document = response.parse()
                     }
                 } catch (e: IOException) {
-                    responseStatus = ResponseStatus.SERVER_ERROR
+                    responseStatus = if (e is HttpStatusException && e.statusCode == 403)
+                        ResponseStatus.FORBIDDEN else ResponseStatus.SERVER_ERROR
                 }
 
                 return Pair(responseStatus, document)
