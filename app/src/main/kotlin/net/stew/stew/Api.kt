@@ -138,10 +138,12 @@ class Api(val application: Application) {
 
     private fun parsePosts(document: Document): Collection<Post> {
         return document.select(".post_image").map {
+            val blockRepost = it.hasClass("hide-repost")
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
             val src = it.select(".imagecontainer img").attr("src")
             val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
-            val repostState = if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED
+            val repostState = if (blockRepost) Post.RepostState.BLOCKED else
+                if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED
 
             val description = it.select(".description").text()
 

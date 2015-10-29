@@ -122,7 +122,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             }
 
             val stringId = when (post.repostState) {
-                Post.RepostState.NOT_REPOSTED -> R.string.repost
+                Post.RepostState.NOT_REPOSTED, Post.RepostState.BLOCKED -> R.string.repost
                 Post.RepostState.REPOSTING -> R.string.reposting
                 Post.RepostState.REPOSTED -> R.string.reposted
             }

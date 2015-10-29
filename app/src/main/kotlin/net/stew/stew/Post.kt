@@ -12,7 +12,8 @@ class Post(val id: Int,
     enum class RepostState {
         NOT_REPOSTED,
         REPOSTING,
-        REPOSTED
+        REPOSTED,
+        BLOCKED
     }
 
     class Author(val name: String, val imageUri: Uri)
