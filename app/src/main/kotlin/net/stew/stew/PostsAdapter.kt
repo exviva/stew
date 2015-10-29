@@ -80,7 +80,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     }
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
-        val post = posts.get(i)
+        val post = posts[i]
         val controller = Fresco.newDraweeControllerBuilder().
                 setUri(post.uri).
                 setAutoPlayAnimations(true).
@@ -157,9 +157,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         }
     }
 
-    override fun getItemCount(): Int {
-        return posts.size()
-    }
+    override fun getItemCount() = posts.size
 
     override fun onPostsLoaded(posts: Collection<Post>) {
         this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts

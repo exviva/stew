@@ -22,7 +22,7 @@ class LoginActivity() : Activity() {
         passwordEditText.addTextChangedListener(textWatcher)
         logInButton.setOnClickListener { logIn() }
 
-        if (userNameEditText.text.length() > 0) {
+        if (userNameEditText.text.length > 0) {
             passwordEditText.requestFocus()
         }
     }
@@ -56,8 +56,8 @@ class LoginActivity() : Activity() {
 
     private val textWatcher = object: TextWatcher {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            val userNamePresent = userNameEditText.text.length() > 0
-            val passwordPresent = passwordEditText.text.length() > 0
+            val userNamePresent = userNameEditText.text.length > 0
+            val passwordPresent = passwordEditText.text.length > 0
             logInButton.isEnabled = userNamePresent && passwordPresent
         }
 

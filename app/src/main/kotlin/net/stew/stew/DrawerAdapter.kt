@@ -35,7 +35,7 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         return textView
     }
 
-    override fun getCount() = listItems.size()
+    override fun getCount() = listItems.size
 
     fun setActiveItemPosition(position: Int) {
         activeItemPosition = position

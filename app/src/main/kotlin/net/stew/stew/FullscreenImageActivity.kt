@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import com.facebook.drawee.backends.pipeline.Fresco
+import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.android.synthetic.activity_fullscreen_image.imageView
 
 class FullscreenImageActivity() : Activity() {
@@ -32,7 +33,7 @@ class FullscreenImageActivity() : Activity() {
             setUri(uri).
             setAutoPlayAnimations(true).
             build()
-        imageView.controller = controller
+        (imageView as SimpleDraweeView).controller = controller
         imageView.setOnClickListener { finish() }
     }
 
