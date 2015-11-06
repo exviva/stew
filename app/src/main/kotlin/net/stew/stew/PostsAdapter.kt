@@ -12,7 +12,6 @@ import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.drawable.ProgressBarDrawable
-import com.facebook.drawee.generic.GenericDraweeHierarchyBuilder
 import com.facebook.drawee.view.SimpleDraweeView
 import com.facebook.imagepipeline.image.ImageInfo
 
@@ -64,51 +63,47 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
-        val viewHolder = PostViewHolder(view)
-        val progressDrawable = ProgressBarDrawable()
 
-        progressDrawable.color = ContextCompat.getColor(activity, R.color.accent)
-        progressDrawable.barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
+        return PostViewHolder(view).apply {
+            val drawable = ProgressBarDrawable().apply {
+                color = ContextCompat.getColor(activity, R.color.accent)
+                barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
+            }
 
-        val draweeHierarchy = GenericDraweeHierarchyBuilder(activity.resources).
-                setProgressBarImage(progressDrawable).
-                build()
-
-        viewHolder.postImageView.hierarchy = draweeHierarchy
-
-        return viewHolder
+            postImageView.hierarchy.setProgressBarImage(drawable)
+        }
     }
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts[i]
-        val controller = Fresco.newDraweeControllerBuilder().
-                setUri(post.uri).
-                setAutoPlayAnimations(true).
-                setOldController(postViewHolder.postImageView.controller).
-                setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                    override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                        postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
-                        postViewHolder.postImageView.setOnClickListener {
-                            FullscreenImageActivity.start(activity, post.uri, it)
+
+        postViewHolder.postImageView.apply {
+            setOnClickListener(null)
+            controller = Fresco.newDraweeControllerBuilder().
+                    setUri(post.uri).
+                    setAutoPlayAnimations(true).
+                    setOldController(postViewHolder.postImageView.controller).
+                    setTapToRetryEnabled(true).
+                    setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                        override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                            postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
+                            setOnClickListener {
+                                FullscreenImageActivity.start(activity, post.uri, it)
+                            }
                         }
-                    }
-                }).
-                build()
-
-        postViewHolder.postImageView.let {
-            it.controller = controller
-            it.setOnClickListener(null)
+                    }).
+                    build()
         }
 
-        postViewHolder.description.let {
-            it.visibility = if (post.description.isBlank()) View.GONE else View.VISIBLE
-            it.text = post.description
+        postViewHolder.description.apply {
+            visibility = if (post.description.isBlank()) View.GONE else View.VISIBLE
+            text = post.description
         }
 
-        postViewHolder.repostButton.let {
-            it.visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
-            it.isEnabled = false
-            it.setOnClickListener {
+        postViewHolder.repostButton.apply {
+            visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
+            isEnabled = false
+            setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
                     if (it == ResponseStatus.FORBIDDEN) {
                         handleForbidden()
@@ -126,7 +121,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                 Post.RepostState.REPOSTING -> R.string.reposting
                 Post.RepostState.REPOSTED -> R.string.reposted
             }
-            it.setText(stringId)
+            setText(stringId)
         }
 
         if (collection.subdomain != null) {
