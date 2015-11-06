@@ -3,7 +3,6 @@ package net.stew.stew
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
@@ -14,7 +13,7 @@ import kotlinx.android.synthetic.activity_main.drawerLayout
 import kotlinx.android.synthetic.activity_main.drawerListView
 import kotlinx.android.synthetic.activity_main.loadingIndicator
 import kotlinx.android.synthetic.activity_main.postsView
-import java.util.HashMap
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,8 +36,8 @@ class MainActivity : AppCompatActivity() {
             val layoutManager = LinearLayoutManager(this)
             postsAdapters = HashMap(PostCollection.Predefined.map { it to PostsAdapter(this, it) }.toMap())
 
-            (postsView as RecyclerView).layoutManager = layoutManager
-            (postsView as RecyclerView).addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            postsView.layoutManager = layoutManager
+            postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
                     if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.itemCount - 3) {
                         activePostsAdapter!!.loadMore()
@@ -70,11 +69,11 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     startActivity(Intent(this, AboutActivity::class.java))
                 }
-                (drawerLayout as DrawerLayout).closeDrawers()
+                drawerLayout.closeDrawers()
             }
 
-            drawerToggle = ActionBarDrawerToggle(this, drawerLayout as DrawerLayout, android.R.string.ok, android.R.string.ok)
-            (drawerLayout as DrawerLayout).setDrawerListener(drawerToggle)
+            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
+            drawerLayout.setDrawerListener(drawerToggle)
             supportActionBar.setDisplayHomeAsUpEnabled(true)
             supportActionBar.setHomeButtonEnabled(true)
         }
@@ -152,7 +151,7 @@ class MainActivity : AppCompatActivity() {
             PostsAdapter(this, postCollection)
 
         activePostsAdapter!!.activate(load)
-        (postsView as RecyclerView).adapter = activePostsAdapter
+        postsView.adapter = activePostsAdapter
         drawerAdapter!!.setActiveItemPosition(postCollection.ordinal())
         title = if (postCollection.isPredefined())
             resources.getStringArray(R.array.post_collections)[postCollection.ordinal()] else
