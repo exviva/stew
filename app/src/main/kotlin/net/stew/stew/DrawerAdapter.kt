@@ -23,9 +23,7 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         val context = parent.context
         val isActive = position == activeItemPosition
         val textView = when (convertView) {
-            null -> {
-                LayoutInflater.from(context).inflate(R.layout.drawer_list_item, parent, false)
-            }
+            null -> LayoutInflater.from(context).inflate(R.layout.drawer_list_item, parent, false)
             else -> convertView
         } as TextView
 

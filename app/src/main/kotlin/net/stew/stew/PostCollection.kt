@@ -5,9 +5,10 @@ abstract class PostCollection {
     companion object {
         val Friends = CurrentUserPostCollection("/friends")
         val FOF = CurrentUserPostCollection("/fof")
+        val Everyone = CurrentUserPostCollection("/everyone")
         val Me = SubdomainPostCollection(":current_user")
 
-        val Predefined = listOf(Friends, FOF, Me)
+        val Predefined = listOf(Friends, FOF, Everyone, Me)
     }
 
     abstract val subdomain : String?

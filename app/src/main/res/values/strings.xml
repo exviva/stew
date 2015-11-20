@@ -15,6 +15,7 @@
     <string-array name="post_collections">
         <item>Friends</item>
         <item>Friends of friends</item>
+        <item>Everyone</item>
         <item>My soup</item>
     </string-array>
     <string name="repost">Repost</string>
