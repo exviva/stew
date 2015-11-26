@@ -78,21 +78,24 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val post = posts[i]
 
         postViewHolder.postImageView.apply {
-            setOnClickListener(null)
-            controller = Fresco.newDraweeControllerBuilder().
-                    setUri(post.uri).
-                    setAutoPlayAnimations(true).
-                    setOldController(postViewHolder.postImageView.controller).
-                    setTapToRetryEnabled(true).
-                    setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                        override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                            postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
-                            setOnClickListener {
-                                FullscreenImageActivity.start(activity, post.uri, it)
+            if (tag != post.uri) {
+                tag = post.uri
+                setOnClickListener(null)
+                controller = Fresco.newDraweeControllerBuilder().
+                        setUri(post.uri).
+                        setAutoPlayAnimations(true).
+                        setOldController(postViewHolder.postImageView.controller).
+                        setTapToRetryEnabled(true).
+                        setControllerListener(object : BaseControllerListener<ImageInfo>() {
+                            override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
+                                postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
+                                setOnClickListener {
+                                    FullscreenImageActivity.start(activity, post.uri, it)
+                                }
                             }
-                        }
-                    }).
-                    build()
+                        }).
+                        build()
+            }
         }
 
         postViewHolder.description.apply {
