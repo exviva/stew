@@ -9,10 +9,10 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
-import kotlinx.android.synthetic.activity_main.drawerLayout
-import kotlinx.android.synthetic.activity_main.drawerListView
-import kotlinx.android.synthetic.activity_main.loadingIndicator
-import kotlinx.android.synthetic.activity_main.postsView
+import kotlinx.android.synthetic.main.activity_main.drawerLayout
+import kotlinx.android.synthetic.main.activity_main.drawerListView
+import kotlinx.android.synthetic.main.activity_main.loadingIndicator
+import kotlinx.android.synthetic.main.activity_main.postsView
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
@@ -74,8 +74,8 @@ class MainActivity : AppCompatActivity() {
 
             drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
             drawerLayout.setDrawerListener(drawerToggle)
-            supportActionBar.setDisplayHomeAsUpEnabled(true)
-            supportActionBar.setHomeButtonEnabled(true)
+            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+            supportActionBar!!.setHomeButtonEnabled(true)
         }
     }
 

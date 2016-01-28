@@ -8,7 +8,7 @@ class PostsProvider(
         private val collection: PostCollection,
         private val listener: PostsProvider.Listener) {
 
-    public interface Listener {
+    interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
         fun onPostsLoadError(responseStatus: ResponseStatus)
     }
@@ -25,7 +25,7 @@ class PostsProvider(
         listener.onPostsLoaded(it)
     }
 
-    public fun loadPosts(lastPost: Post?) {
+    fun loadPosts(lastPost: Post?) {
         if (loadingTask != null) {
             if (loadingTaskIsForMorePosts == (lastPost != null)) {
                 return

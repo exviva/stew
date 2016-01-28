@@ -6,9 +6,9 @@ import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
-import kotlinx.android.synthetic.activity_login.logInButton
-import kotlinx.android.synthetic.activity_login.passwordEditText
-import kotlinx.android.synthetic.activity_login.userNameEditText
+import kotlinx.android.synthetic.main.activity_login.logInButton
+import kotlinx.android.synthetic.main.activity_login.passwordEditText
+import kotlinx.android.synthetic.main.activity_login.userNameEditText
 
 class LoginActivity() : Activity() {
 

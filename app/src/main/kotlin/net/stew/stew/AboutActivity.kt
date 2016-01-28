@@ -2,7 +2,7 @@ package net.stew.stew
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import kotlinx.android.synthetic.activity_about.versionTextView
+import kotlinx.android.synthetic.main.activity_about.versionTextView
 
 class AboutActivity : AppCompatActivity() {
 
