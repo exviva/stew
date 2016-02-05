@@ -39,7 +39,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile 'org.jsoup:jsoup:1.8.3'
-    compile 'com.facebook.fresco:fresco:0.8.1'
+    compile 'com.facebook.fresco:fresco:0.9.0'
 }
 
 buildscript {
