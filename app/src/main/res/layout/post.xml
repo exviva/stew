@@ -72,12 +72,29 @@
 
         </LinearLayout>
 
-        <com.facebook.drawee.view.SimpleDraweeView
-            android:id="@+id/postImageView"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"
-            fresco:failureImage="@android:drawable/ic_menu_report_image"
-            fresco:retryImage="@android:drawable/ic_menu_rotate" />
+            android:layout_height="wrap_content">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/postImageView"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                fresco:failureImage="@android:drawable/ic_menu_report_image"
+                fresco:retryImage="@android:drawable/ic_menu_rotate" />
+
+            <ImageButton
+                android:id="@+id/shareButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@android:drawable/ic_menu_share"
+                android:background="@android:color/transparent"
+                android:layout_gravity="bottom|end"
+                android:layout_marginBottom="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginEnd="8dp" />
+
+        </FrameLayout>
 
         <TextView
             android:id="@+id/descriptionTextView"

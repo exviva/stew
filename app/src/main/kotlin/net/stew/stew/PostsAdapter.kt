@@ -1,5 +1,6 @@
 package net.stew.stew
 
+import android.content.Intent
 import android.graphics.drawable.Animatable
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
@@ -7,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -22,6 +24,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
+        val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
         val authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
         val authorLayout = itemView.findViewById(R.id.authorLayout)
         val authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
@@ -89,6 +92,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                         setControllerListener(object : BaseControllerListener<ImageInfo>() {
                             override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
                                 postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
+                                postViewHolder.shareButton.visibility = View.VISIBLE
                                 setOnClickListener {
                                     FullscreenImageActivity.start(activity, post.uri, it)
                                 }
@@ -125,6 +129,15 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                 Post.RepostState.REPOSTED -> R.string.reposted
             }
             setText(stringId)
+        }
+        postViewHolder.shareButton.apply {
+            visibility = View.GONE
+            setOnClickListener {
+                val sendIntent = Intent(Intent.ACTION_SEND)
+                sendIntent.setType("text/plain")
+                sendIntent.putExtra(Intent.EXTRA_TEXT, post.uri.toString())
+                activity.startActivity(Intent.createChooser(sendIntent, ""))
+            }
         }
 
         if (collection.subdomain != null) {
