@@ -79,12 +79,11 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts[i]
-        var changeImage = false
 
         postViewHolder.postImageView.apply {
             if (tag != post.uri) {
-                changeImage = true
                 tag = post.uri
+                post.imageLoaded = false
                 setOnClickListener(null)
                 controller = Fresco.newDraweeControllerBuilder().
                         setUri(post.uri).
@@ -93,8 +92,8 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                         setTapToRetryEnabled(true).
                         setControllerListener(object : BaseControllerListener<ImageInfo>() {
                             override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                                postViewHolder.repostButton.isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
-                                postViewHolder.shareButton.visibility = View.VISIBLE
+                                post.imageLoaded = true
+                                notifyDataSetChanged()
                                 setOnClickListener {
                                     FullscreenImageActivity.start(activity, post.uri, it)
                                 }
@@ -111,9 +110,8 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
         postViewHolder.repostButton.apply {
             visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
-            if (changeImage) {
-                isEnabled = false
-            }
+            isEnabled = post.imageLoaded && post.repostState == Post.RepostState.NOT_REPOSTED
+
             setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
                     if (it == ResponseStatus.FORBIDDEN) {
@@ -135,9 +133,8 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             setText(stringId)
         }
         postViewHolder.shareButton.apply {
-            if (changeImage) {
-                visibility = View.GONE
-            }
+            visibility = if (post.imageLoaded) View.VISIBLE else View.GONE
+
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND)
                 sendIntent.setType("text/plain")
