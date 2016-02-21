@@ -7,7 +7,6 @@ import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
-import kotlin.text.Regex
 
 class Api(val application: Application) {
 
@@ -137,7 +136,7 @@ class Api(val application: Application) {
     }
 
     private fun parsePosts(document: Document): Collection<Post> {
-        return document.select(".post_image").map {
+        return document.select(":not(.gallery-images) > .post_image").map {
             val blockRepost = it.hasClass("hide-repost")
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
             val src = it.select(".imagecontainer img").attr("src")
