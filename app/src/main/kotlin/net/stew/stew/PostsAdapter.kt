@@ -79,9 +79,11 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
     override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
         val post = posts[i]
+        var changeImage = false
 
         postViewHolder.postImageView.apply {
             if (tag != post.uri) {
+                changeImage = true
                 tag = post.uri
                 setOnClickListener(null)
                 controller = Fresco.newDraweeControllerBuilder().
@@ -109,7 +111,9 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
         postViewHolder.repostButton.apply {
             visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
-            isEnabled = false
+            if (changeImage) {
+                isEnabled = false
+            }
             setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
                     if (it == ResponseStatus.FORBIDDEN) {
@@ -131,7 +135,9 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             setText(stringId)
         }
         postViewHolder.shareButton.apply {
-            visibility = View.GONE
+            if (changeImage) {
+                visibility = View.GONE
+            }
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND)
                 sendIntent.setType("text/plain")
