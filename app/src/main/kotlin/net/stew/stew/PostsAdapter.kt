@@ -46,6 +46,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
     private var isActive = false
+    private var recyclerView: RecyclerView? = null
 
 
     fun activate(load: Boolean) {
@@ -62,6 +63,14 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     fun deactivate() {
         hideLoadingIndicator()
         isActive = false
+    }
+
+    override fun onAttachedToRecyclerView(recyclerView: RecyclerView?) {
+        this.recyclerView = recyclerView
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView?) {
+        this.recyclerView = null
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
@@ -93,7 +102,13 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
                         setControllerListener(object : BaseControllerListener<ImageInfo>() {
                             override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
                                 post.imageLoaded = true
-                                notifyDataSetChanged()
+
+                                if (recyclerView != null && recyclerView!!.isComputingLayout) {
+                                    recyclerView!!.post { notifyDataSetChanged() }
+                                } else {
+                                    notifyDataSetChanged()
+                                }
+
                                 setOnClickListener {
                                     FullscreenImageActivity.start(activity, post.uri, it)
                                 }
