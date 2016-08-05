@@ -16,11 +16,11 @@ class PostsProvider(
     private var loadingTask: AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>? = null
     private var loadingTaskIsForMorePosts: Boolean = false
 
-    protected val errorListener: (ResponseStatus) -> Unit = {
+    private val errorListener: (ResponseStatus) -> Unit = {
         loadingTask = null
         listener.onPostsLoadError(it)
     }
-    protected val successListener: (Collection<Post>) -> Unit = {
+    private val successListener: (Collection<Post>) -> Unit = {
         loadingTask = null
         listener.onPostsLoaded(it)
     }

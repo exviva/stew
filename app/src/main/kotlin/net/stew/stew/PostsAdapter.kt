@@ -25,11 +25,11 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
         val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
-        val authorshipLayout = itemView.findViewById(R.id.authorshipLayout)
-        val authorLayout = itemView.findViewById(R.id.authorLayout)
+        val authorshipLayout: View = itemView.findViewById(R.id.authorshipLayout)
+        val authorLayout: View = itemView.findViewById(R.id.authorLayout)
         val authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
         val authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
-        val groupLayout = itemView.findViewById(R.id.groupLayout)
+        val groupLayout: View = itemView.findViewById(R.id.groupLayout)
         val groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
         val groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
         val description = itemView.findViewById(R.id.descriptionTextView) as TextView
@@ -137,7 +137,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND)
-                sendIntent.setType("text/plain")
+                sendIntent.type = "text/plain"
                 sendIntent.putExtra(Intent.EXTRA_TEXT, post.uri.toString())
                 activity.startActivity(Intent.createChooser(sendIntent, ""))
             }
@@ -151,7 +151,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             postViewHolder.authorshipLayout.visibility = View.VISIBLE
 
             postViewHolder.authorNameTextView.text = post.author.name
-            postViewHolder.authorImageView.setImageURI(post.author.imageUri)
+            postViewHolder.authorImageView.setImageURI(post.author.imageUri, null)
             postViewHolder.authorLayout.setOnClickListener {
                 val collection = SubdomainPostCollection(post.author.name)
                 activity.setActivePostsAdapter(collection, true)
@@ -160,7 +160,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             if (group != null) {
                 postViewHolder.groupLayout.visibility = View.VISIBLE
                 postViewHolder.groupNameTextView.text = group.name
-                postViewHolder.groupImageView.setImageURI(group.imageUri)
+                postViewHolder.groupImageView.setImageURI(group.imageUri, null)
                 postViewHolder.groupLayout.setOnClickListener {
                     val collection = SubdomainPostCollection(group.name)
                     activity.setActivePostsAdapter(collection, true)

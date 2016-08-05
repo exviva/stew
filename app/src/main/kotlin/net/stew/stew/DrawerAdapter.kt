@@ -15,7 +15,7 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
         context.getString(R.string.about)
     private var activeItemPosition = 0
 
-    override fun getItem(position: Int) = listItems[position]
+    override fun getItem(position: Int): String = listItems[position]
 
     override fun getItemId(position: Int) = position.toLong()
 

@@ -123,11 +123,11 @@ class MainActivity : AppCompatActivity() {
 
     fun showLoadingIndicator() {
         loadingIndicator.visibility = View.VISIBLE
-        loadingIndicator.animate().alpha(1.0f);
+        loadingIndicator.animate().alpha(1.0f)
     }
 
     fun hideLoadingIndicator() {
-        loadingIndicator.animate().alpha(0.0f);
+        loadingIndicator.animate().alpha(0.0f)
     }
 
     fun logOut() {
