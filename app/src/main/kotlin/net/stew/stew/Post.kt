@@ -7,8 +7,7 @@ class Post(val id: Int,
            val description: String,
            val author: Post.Author,
            val group: Post.Group?,
-           var repostState: Post.RepostState,
-           var imageLoaded: Boolean = false) {
+           var repostState: Post.RepostState) {
 
     enum class RepostState {
         NOT_REPOSTED,

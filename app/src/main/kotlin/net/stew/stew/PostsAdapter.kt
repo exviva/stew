@@ -1,7 +1,6 @@
 package net.stew.stew
 
 import android.content.Intent
-import android.graphics.drawable.Animatable
 import android.support.v4.content.ContextCompat
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -12,10 +11,8 @@ import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
 import com.facebook.drawee.backends.pipeline.Fresco
-import com.facebook.drawee.controller.BaseControllerListener
 import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
-import com.facebook.imagepipeline.image.ImageInfo
 
 class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
     RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
@@ -92,29 +89,15 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
         postViewHolder.postImageView.apply {
             if (tag != post.uri) {
                 tag = post.uri
-                post.imageLoaded = false
-                setOnClickListener(null)
                 controller = Fresco.newDraweeControllerBuilder().
                         setUri(post.uri).
                         setAutoPlayAnimations(true).
                         setOldController(postViewHolder.postImageView.controller).
                         setTapToRetryEnabled(true).
-                        setControllerListener(object : BaseControllerListener<ImageInfo>() {
-                            override fun onFinalImageSet(id: String?, imageInfo: ImageInfo?, animatable: Animatable?) {
-                                post.imageLoaded = true
-
-                                if (recyclerView != null && recyclerView!!.isComputingLayout) {
-                                    recyclerView!!.post { notifyDataSetChanged() }
-                                } else {
-                                    notifyDataSetChanged()
-                                }
-
-                                setOnClickListener {
-                                    FullscreenImageActivity.start(activity, post.uri, it)
-                                }
-                            }
-                        }).
                         build()
+                setOnClickListener {
+                    FullscreenImageActivity.start(activity, post.uri, it)
+                }
             }
         }
 
@@ -125,7 +108,7 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
 
         postViewHolder.repostButton.apply {
             visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
-            isEnabled = post.imageLoaded && post.repostState == Post.RepostState.NOT_REPOSTED
+            isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
 
             setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
@@ -148,8 +131,6 @@ class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
             setText(stringId)
         }
         postViewHolder.shareButton.apply {
-            visibility = if (post.imageLoaded) View.VISIBLE else View.GONE
-
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND)
                 sendIntent.type = "text/plain"
