@@ -104,7 +104,7 @@ class Api(val application: Application) {
                 try {
                     val originalUrl = connection.request().url()
                     val response = connection.execute()
-                    if (!originalUrl.path.equals(loginPath) && response.url().path.equals(loginPath)) {
+                    if (originalUrl.path != loginPath && response.url().path == loginPath) {
                         responseStatus = ResponseStatus.FORBIDDEN
                     } else {
                         document = response.parse()
