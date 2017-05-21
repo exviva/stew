@@ -10,7 +10,7 @@ import kotlinx.android.synthetic.main.activity_login.logInButton
 import kotlinx.android.synthetic.main.activity_login.passwordEditText
 import kotlinx.android.synthetic.main.activity_login.userNameEditText
 
-class LoginActivity() : Activity() {
+class LoginActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

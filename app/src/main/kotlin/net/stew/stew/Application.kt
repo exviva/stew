@@ -26,7 +26,7 @@ class Application : android.app.Application() {
             putString("userIdCookie", userIdCookie).
             putString("sessionIdCookie", sessionIdCookie).
             putString("csrfToken", csrfToken).
-            commit()
+            apply()
     }
 
     fun logOut() {
@@ -38,7 +38,7 @@ class Application : android.app.Application() {
             remove("userIdCookie").
             remove("sessionIdCookie").
             remove("csrfToken").
-            commit()
+            apply()
     }
 
     private fun restoreCurrentSession() {

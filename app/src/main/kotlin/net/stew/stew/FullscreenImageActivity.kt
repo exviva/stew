@@ -10,7 +10,7 @@ import android.view.View
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.activity_fullscreen_image.imageView
 
-class FullscreenImageActivity() : Activity() {
+class FullscreenImageActivity : Activity() {
 
     companion object {
         fun start(activity: Activity, uri: Uri, view: View) {

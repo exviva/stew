@@ -94,41 +94,11 @@ class Api(val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: (ResponseStatus) -> Unit, listener: ((Document) -> Unit)):
-        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
-        val task = object: AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>() {
-            override fun doInBackground(vararg params: Void?): Pair<ResponseStatus, Document?> {
-                var responseStatus: ResponseStatus = ResponseStatus.OK
-                var document: Document? = null
-
-                try {
-                    val originalUrl = connection.request().url()
-                    val response = connection.execute()
-                    if (originalUrl.path != loginPath && response.url().path == loginPath) {
-                        responseStatus = ResponseStatus.FORBIDDEN
-                    } else {
-                        document = response.parse()
-                    }
-                } catch (e: IOException) {
-                    responseStatus = if (e is HttpStatusException && e.statusCode == 403)
-                        ResponseStatus.FORBIDDEN else ResponseStatus.SERVER_ERROR
-                }
-
-                return Pair(responseStatus, document)
-            }
-
-            override fun onPostExecute(pair: Pair<ResponseStatus, Document?>) {
-                runningTasks.remove(this)
-
-                val responseStatus = pair.first
-                val document = pair.second
-
-                if (responseStatus == ResponseStatus.OK && document != null) {
-                    listener(document)
-                } else {
-                    errorListener(responseStatus)
-                }
-            }
+    private fun executeRequest(connection: Connection, errorListener: (ResponseStatus) -> Unit, listener: (Document) -> Unit):
+            AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
+        val task = Task(connection, errorListener) { task, document ->
+            runningTasks.remove(task)
+            listener(document)
         }
         task.execute()
         runningTasks.add(task)
@@ -161,6 +131,40 @@ class Api(val application: Application) {
         }
     }
 
+}
+
+private class Task(val connection: Connection, val errorListener: (ResponseStatus) -> Unit, val listener: (Task, Document) -> Unit):
+        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>() {
+    override fun doInBackground(vararg params: Void?): Pair<ResponseStatus, Document?> {
+        var responseStatus: ResponseStatus = ResponseStatus.OK
+        var document: Document? = null
+
+        try {
+            val originalUrl = connection.request().url()
+            val response = connection.execute()
+            if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
+                responseStatus = ResponseStatus.FORBIDDEN
+            } else {
+                document = response.parse()
+            }
+        } catch (e: IOException) {
+            responseStatus = if (e is HttpStatusException && e.statusCode == 403)
+                ResponseStatus.FORBIDDEN else ResponseStatus.SERVER_ERROR
+        }
+
+        return Pair(responseStatus, document)
+    }
+
+    override fun onPostExecute(pair: Pair<ResponseStatus, Document?>) {
+        val responseStatus = pair.first
+        val document = pair.second
+
+        if (responseStatus == ResponseStatus.OK && document != null) {
+            listener(this, document)
+        } else {
+            errorListener(responseStatus)
+        }
+    }
 }
 
 enum class ResponseStatus {
