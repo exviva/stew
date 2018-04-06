@@ -8,10 +8,10 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
 
-class Api(val application: Application) {
+class Api(private val application: Application) {
 
     companion object {
-        val loginPath = "/login"
+        const val loginPath = "/login"
     }
 
     private val runningTasks = arrayListOf<AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>>()
@@ -111,8 +111,11 @@ class Api(val application: Application) {
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
             val src = it.select(".imagecontainer img").attr("src")
             val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
-            val repostState = if (blockRepost) Post.RepostState.BLOCKED else
-                if (isReposted) Post.RepostState.REPOSTED else Post.RepostState.NOT_REPOSTED
+            val repostState = when {
+                blockRepost -> Post.RepostState.BLOCKED
+                isReposted -> Post.RepostState.REPOSTED
+                else -> Post.RepostState.NOT_REPOSTED
+            }
 
             val description = it.select(".description").text()
 

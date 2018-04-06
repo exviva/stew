@@ -1,7 +1,5 @@
 package net.stew.stew
 
-import java.util.*
-
 class PostsStore {
 
     private val postsByCollection = HashMap<PostCollection, ArrayList<Post>>()
@@ -13,7 +11,7 @@ class PostsStore {
 
     fun restore(collection: PostCollection) : List<Post> {
         if (collection !in postsByCollection) {
-            postsByCollection.put(collection, arrayListOf<Post>())
+            postsByCollection[collection] = ArrayList()
         }
 
         return postsByCollection[collection]!!.toList()

@@ -13,7 +13,6 @@ import kotlinx.android.synthetic.main.activity_main.drawerLayout
 import kotlinx.android.synthetic.main.activity_main.drawerListView
 import kotlinx.android.synthetic.main.activity_main.loadingIndicator
 import kotlinx.android.synthetic.main.activity_main.postsView
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 

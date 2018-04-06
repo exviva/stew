@@ -14,7 +14,7 @@ import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
 
-class PostsAdapter(val activity: MainActivity, var collection: PostCollection) :
+class PostsAdapter(private val activity: MainActivity, var collection: PostCollection) :
     RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
