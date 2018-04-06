@@ -7,6 +7,10 @@ import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import java.io.IOException
+import java.security.KeyStore
+import java.security.cert.CertificateFactory
+import javax.net.ssl.SSLContext
+import javax.net.ssl.TrustManagerFactory
 
 class Api(private val application: Application) {
 
@@ -15,6 +19,23 @@ class Api(private val application: Application) {
     }
 
     private val runningTasks = arrayListOf<AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>>()
+
+    private val sslSocketFactory by lazy {
+        SSLContext.getInstance("TLS").apply {
+            val tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).apply {
+                val keyStore = KeyStore.getInstance(KeyStore.getDefaultType()).apply {
+                    val ca = application.resources.openRawResource(R.raw.rapidssl).use {
+                        CertificateFactory.getInstance("X.509").generateCertificate(it)
+                    }
+                    load(null, null)
+                    setCertificateEntry("ca", ca)
+                }
+
+                init(keyStore)
+            }
+            init(null, tmf.trustManagers, null)
+        }.socketFactory
+    }
 
     fun logIn(userName: String, password: String, errorListener: (ResponseStatus) -> Unit, listener: (String?, String?, String?) -> Unit) {
         val loginPageConnection = connect(loginPath, useSsl = true)
@@ -82,7 +103,8 @@ class Api(private val application: Application) {
 
     private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false, requireAuthentication: Boolean = true): Connection {
         val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io$path").
-            timeout(10000)
+            timeout(10000).
+            sslSocketFactory(sslSocketFactory)
         val currentSession = application.currentSession
 
         if (requireAuthentication && currentSession != null) {

@@ -1,0 +1,3 @@
+[submodule "vendor/jsoup"]
+	path = vendor/jsoup
+	url = git@github.com:jhy/jsoup.git
