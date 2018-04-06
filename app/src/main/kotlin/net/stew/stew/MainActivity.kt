@@ -16,15 +16,17 @@ import kotlinx.android.synthetic.main.activity_main.postsView
 
 class MainActivity : AppCompatActivity() {
 
-    val ACTIVE_PREDEFINED_POST_COLLECTION_TAG = "ACTIVE_PREDEFINED_POST_COLLECTION_TAG"
-    val ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG = "ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG"
-    val LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG = "LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG"
+    companion object {
+        private const val ACTIVE_PREDEFINED_POST_COLLECTION_TAG = "ACTIVE_PREDEFINED_POST_COLLECTION_TAG"
+        private const val ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG = "ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG"
+        private const val LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG = "LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG"
+    }
 
-    var drawerToggle: ActionBarDrawerToggle? = null
-    var postsAdapters: HashMap<PostCollection, PostsAdapter>? = null
-    var activePostsAdapter: PostsAdapter? = null
-    var drawerAdapter: DrawerAdapter? = null
-    var lastViewedPredefinedCollection: Int? = null
+    private lateinit var drawerToggle: ActionBarDrawerToggle
+    private lateinit var postsAdapters: HashMap<PostCollection, PostsAdapter>
+    private lateinit var activePostsAdapter: PostsAdapter
+    private lateinit var drawerAdapter: DrawerAdapter
+    private var lastViewedPredefinedCollection: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -38,8 +40,8 @@ class MainActivity : AppCompatActivity() {
             postsView.layoutManager = layoutManager
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
-                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter!!.itemCount - 3) {
-                        activePostsAdapter!!.loadMore()
+                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter.itemCount - 3) {
+                        activePostsAdapter.loadMore()
                     }
                 }
             })
@@ -50,29 +52,27 @@ class MainActivity : AppCompatActivity() {
                 lastViewedPredefinedCollection = savedInstanceState.getInt(LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG)
             }
 
-            val activePostCollection = if (savedInstanceState == null)
-                PostCollection.Friends else
-                if (savedInstanceState.containsKey(ACTIVE_PREDEFINED_POST_COLLECTION_TAG))
-                    PostCollection.Predefined[savedInstanceState.getInt(ACTIVE_PREDEFINED_POST_COLLECTION_TAG)] else
-                    SubdomainPostCollection(savedInstanceState.getString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG))
+            val activePostCollection = when {
+                savedInstanceState == null -> PostCollection.Friends
+                savedInstanceState.containsKey(ACTIVE_PREDEFINED_POST_COLLECTION_TAG) -> PostCollection.Predefined[savedInstanceState.getInt(ACTIVE_PREDEFINED_POST_COLLECTION_TAG)]
+                else -> SubdomainPostCollection(savedInstanceState.getString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG))
+            }
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
             drawerListView.adapter = drawerAdapter
-            drawerListView.setOnItemClickListener { parent, view, position, id ->
+            drawerListView.setOnItemClickListener { _, _, position, _ ->
                 val postCollectionValuesSize = PostCollection.Predefined.size
-                if (position < postCollectionValuesSize) {
-                    setActivePostsAdapter(PostCollection.Predefined[position], true)
-                } else if (position == postCollectionValuesSize) {
-                    logOut()
-                } else {
-                    startActivity(Intent(this, AboutActivity::class.java))
+                when {
+                    position < postCollectionValuesSize -> setActivePostsAdapter(PostCollection.Predefined[position], true)
+                    position == postCollectionValuesSize -> logOut()
+                    else -> startActivity(Intent(this, AboutActivity::class.java))
                 }
                 drawerLayout.closeDrawers()
             }
 
             drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
-            drawerLayout.setDrawerListener(drawerToggle)
+            drawerLayout.addDrawerListener(drawerToggle)
             supportActionBar!!.setDisplayHomeAsUpEnabled(true)
             supportActionBar!!.setHomeButtonEnabled(true)
         }
@@ -81,11 +81,11 @@ class MainActivity : AppCompatActivity() {
     override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
 
-        drawerToggle!!.onConfigurationChanged(newConfig)
+        drawerToggle.onConfigurationChanged(newConfig)
     }
 
     override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        if (drawerToggle!!.onOptionsItemSelected(menuItem)) {
+        if (drawerToggle.onOptionsItemSelected(menuItem)) {
             return true
         }
 
@@ -94,16 +94,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        drawerToggle!!.syncState()
+        drawerToggle.syncState()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
 
-        if (activePostsAdapter!!.collection.isPredefined()) {
-            outState.putInt(ACTIVE_PREDEFINED_POST_COLLECTION_TAG, activePostsAdapter!!.collection.ordinal())
+        if (activePostsAdapter.collection.isPredefined()) {
+            outState.putInt(ACTIVE_PREDEFINED_POST_COLLECTION_TAG, activePostsAdapter.collection.ordinal())
         } else {
-            outState.putString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG, activePostsAdapter!!.collection.subdomain)
+            outState.putString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG, activePostsAdapter.collection.subdomain)
         }
 
         if (lastViewedPredefinedCollection != null) {
@@ -137,21 +137,21 @@ class MainActivity : AppCompatActivity() {
     fun setActivePostsAdapter(postCollection: PostCollection, load: Boolean) {
         lastViewedPredefinedCollection = null
 
-        if (activePostsAdapter != null) {
-            activePostsAdapter!!.deactivate()
+        if (::activePostsAdapter.isInitialized) {
+            activePostsAdapter.deactivate()
 
-            if (activePostsAdapter!!.collection.isPredefined() && !postCollection.isPredefined()) {
-                lastViewedPredefinedCollection = activePostsAdapter!!.collection.ordinal()
+            if (activePostsAdapter.collection.isPredefined() && !postCollection.isPredefined()) {
+                lastViewedPredefinedCollection = activePostsAdapter.collection.ordinal()
             }
         }
 
-        activePostsAdapter = if (postCollection.isPredefined())
-            postsAdapters!![postCollection] else
-            PostsAdapter(this, postCollection)
+        activePostsAdapter =
+            if (postCollection.isPredefined()) postsAdapters[postCollection]!!
+            else PostsAdapter(this, postCollection)
 
-        activePostsAdapter!!.activate(load)
+        activePostsAdapter.activate(load)
         postsView.adapter = activePostsAdapter
-        drawerAdapter!!.setActiveItemPosition(postCollection.ordinal())
+        drawerAdapter.setActiveItemPosition(postCollection.ordinal())
         title = if (postCollection.isPredefined())
             resources.getStringArray(R.array.post_collections)[postCollection.ordinal()] else
             getString(R.string.soup_of_user, postCollection.subdomain)
