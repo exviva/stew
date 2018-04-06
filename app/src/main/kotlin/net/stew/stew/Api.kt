@@ -48,7 +48,7 @@ class Api(private val application: Application) {
             path += "since/${lastPost.id}"
         }
 
-        val connection = connect(path, subdomain)
+        val connection = connect(path, subdomain, requireAuthentication = collection.requiresAuthentication())
 
         if (lastPost != null && collection.subdomain == null) {
             connection.data("since", lastPost.id.toString())
@@ -80,15 +80,15 @@ class Api(private val application: Application) {
         runningTasks.clear()
     }
 
-    private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false): Connection {
+    private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false, requireAuthentication: Boolean = true): Connection {
         val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io$path").
             timeout(10000)
         val currentSession = application.currentSession
 
-        if (currentSession != null) {
+        if (requireAuthentication && currentSession != null) {
             connection.cookie("soup_user_id", currentSession.userIdCookie).
-            cookie("soup_session_id", currentSession.sessionIdCookie).
-            header("X-CSRF-Token", currentSession.csrfToken)
+                cookie("soup_session_id", currentSession.sessionIdCookie).
+                header("X-CSRF-Token", currentSession.csrfToken)
         }
 
         return connection

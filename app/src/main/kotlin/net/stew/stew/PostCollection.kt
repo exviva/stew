@@ -22,15 +22,20 @@ abstract class PostCollection {
     }
 
     override fun hashCode() = (subdomain?.hashCode() ?: 0) * 13 + (path?.hashCode() ?: 0) * 7
+    abstract fun requiresAuthentication(): Boolean
 
 }
 
 class CurrentUserPostCollection(override val path: String) : PostCollection() {
+    override fun requiresAuthentication() = true
+
     override val subdomain : String?
         get() = null
 }
 
 class SubdomainPostCollection(override val subdomain: String) : PostCollection() {
+    override fun requiresAuthentication() = false
+
     override val path: String?
         get() = null
 }
