@@ -33,7 +33,6 @@ android {
     }
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
-        main.java.srcDirs += '../vendor/jsoup/src/main/java'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -46,6 +45,7 @@ dependencies {
     implementation 'com.android.support:recyclerview-v7:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+    implementation 'org.jsoup:jsoup:1.11.3'
     implementation 'com.facebook.fresco:fresco:1.8.1'
     implementation 'com.facebook.fresco:animated-gif:1.8.1'
 }
