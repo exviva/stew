@@ -161,20 +161,20 @@ class Api(private val application: Application) {
 private class Task(val connection: Connection, val errorListener: (ResponseStatus) -> Unit, val listener: (Task, Document) -> Unit):
         AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>() {
     override fun doInBackground(vararg params: Void?): Pair<ResponseStatus, Document?> {
-        var responseStatus: ResponseStatus = ResponseStatus.OK
+        var responseStatus: ResponseStatus = ResponseStatus.Ok()
         var document: Document? = null
 
         try {
             val originalUrl = connection.request().url()
             val response = connection.execute()
             if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
-                responseStatus = ResponseStatus.FORBIDDEN
+                responseStatus = ResponseStatus.Forbidden()
             } else {
                 document = response.parse()
             }
         } catch (e: IOException) {
             responseStatus = if (e is HttpStatusException && e.statusCode == 403)
-                ResponseStatus.FORBIDDEN else ResponseStatus.SERVER_ERROR
+                ResponseStatus.Forbidden() else ResponseStatus.ServerError(e)
         }
 
         return Pair(responseStatus, document)
@@ -184,7 +184,7 @@ private class Task(val connection: Connection, val errorListener: (ResponseStatu
         val responseStatus = pair.first
         val document = pair.second
 
-        if (responseStatus == ResponseStatus.OK && document != null) {
+        if (responseStatus is ResponseStatus.Ok && document != null) {
             listener(this, document)
         } else {
             errorListener(responseStatus)
@@ -192,8 +192,8 @@ private class Task(val connection: Connection, val errorListener: (ResponseStatu
     }
 }
 
-enum class ResponseStatus {
-    OK,
-    FORBIDDEN,
-    SERVER_ERROR
+sealed class ResponseStatus {
+    class Ok : ResponseStatus()
+    class Forbidden : ResponseStatus()
+    class ServerError(val error: Exception) : ResponseStatus()
 }

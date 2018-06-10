@@ -112,11 +112,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
             setOnClickListener {
                 val errorListener: (ResponseStatus) -> Unit = {
-                    if (it == ResponseStatus.FORBIDDEN) {
-                        handleForbidden()
-                    } else {
-                        notifyDataSetChanged()
-                        showErrorToast()
+                    when (it) {
+                        is ResponseStatus.Forbidden -> handleForbidden()
+                        is ResponseStatus.ServerError -> {
+                            notifyDataSetChanged()
+                            showErrorToast(it.error)
+                        }
                     }
                 }
                 application.api.repost(post, errorListener) { notifyDataSetChanged() }
@@ -178,11 +179,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     override fun onPostsLoadError(responseStatus: ResponseStatus) {
-        if (responseStatus == ResponseStatus.FORBIDDEN) {
-            handleForbidden()
-        } else {
-            stopLoading()
-            showErrorToast()
+        when (responseStatus) {
+            is ResponseStatus.Forbidden -> handleForbidden()
+            is ResponseStatus.ServerError -> {
+                stopLoading()
+                showErrorToast(responseStatus.error)
+            }
         }
     }
 
@@ -210,9 +212,10 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    private fun showErrorToast() {
+    private fun showErrorToast(error: Exception) {
         if (isActive) {
-            Toast.makeText(activity, R.string.network_error, Toast.LENGTH_SHORT).show()
+            val msg = activity.getString(R.string.network_error, error.message)
+            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
         }
     }
 

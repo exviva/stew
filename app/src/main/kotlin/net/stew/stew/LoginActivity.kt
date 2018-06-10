@@ -32,7 +32,9 @@ class LoginActivity : Activity() {
         val password = passwordEditText.text.toString()
         val application = application as Application
         val errorListener: (ResponseStatus) -> Unit = {
-            handleResponseError(R.string.network_error)
+            val details = if (it is ResponseStatus.ServerError) it.error.message else ""
+            val msg = getString(R.string.network_error, details)
+            handleResponseError(msg)
         }
         logInButton.isEnabled = false
         logInButton.setText(R.string.logging_in)
@@ -43,15 +45,15 @@ class LoginActivity : Activity() {
                 startActivity(intent)
                 finish()
             } else {
-                handleResponseError(R.string.invalid_credentials)
+                handleResponseError(getString(R.string.invalid_credentials))
             }
         }
     }
 
-    private fun handleResponseError(toastMessageId: Int) {
+    private fun handleResponseError(message: String) {
         logInButton.isEnabled = true
         logInButton.setText(R.string.log_in)
-        Toast.makeText(this, toastMessageId, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
     private val textWatcher = object: TextWatcher {

@@ -31,7 +31,8 @@
             android:hint="@string/userNameHint"
             android:textColorHint="@color/light_gray"
             android:gravity="right"
-            tools:ignore="RtlHardcoded" />
+            tools:ignore="RtlHardcoded"
+            android:autofillHints="username" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -48,7 +49,8 @@
         android:layout_height="wrap_content"
         android:inputType="textPassword"
         android:hint="@string/passwordHint"
-        android:textColorHint="@color/light_gray" />
+        android:textColorHint="@color/light_gray"
+        android:autofillHints="password" />
 
     <Button
         android:id="@+id/logInButton"
