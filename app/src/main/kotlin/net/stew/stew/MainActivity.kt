@@ -3,10 +3,10 @@ package net.stew.stew
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.MenuItem
 import android.view.View
 import kotlinx.android.synthetic.main.activity_main.drawerLayout
@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
             postsView.layoutManager = layoutManager
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
-                override fun onScrolled(recyclerView: RecyclerView?, dx: Int, dy: Int) {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                     if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter.itemCount - 3) {
                         activePostsAdapter.loadMore()
                     }
