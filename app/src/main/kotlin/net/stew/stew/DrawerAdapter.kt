@@ -1,12 +1,12 @@
 package net.stew.stew
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseAdapter
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 
 class DrawerAdapter(context: Context) : BaseAdapter() {
 
@@ -27,10 +27,10 @@ class DrawerAdapter(context: Context) : BaseAdapter() {
             else -> convertView
         } as TextView
 
-        textView.text = getItem(position)
-        textView.setTextColor(ContextCompat.getColor(context, if (isActive) R.color.primary else android.R.color.primary_text_light))
-
-        return textView
+        return textView.apply {
+            text = getItem(position)
+            setTextColor(ContextCompat.getColor(context, if (isActive) R.color.primary else android.R.color.black))
+        }
     }
 
     override fun getCount() = listItems.size
