@@ -10,8 +10,8 @@ android {
         applicationId "net.stew.stew"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 14
-        versionName "0.8.4"
+        versionCode 15
+        versionName "0.8.5"
     }
     signingConfigs {
         release {
