@@ -3,8 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 'android-P'
-    buildToolsVersion '28.0.0 rc2'
+    compileSdkVersion 28
 
     defaultConfig {
         applicationId "net.stew.stew"
