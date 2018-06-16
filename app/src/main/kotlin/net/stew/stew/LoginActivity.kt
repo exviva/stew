@@ -31,10 +31,8 @@ class LoginActivity : Activity() {
         val userName = userNameEditText.text.toString()
         val password = passwordEditText.text.toString()
         val application = application as Application
-        val errorListener: (ResponseStatus) -> Unit = {
-            val details = if (it is ResponseStatus.ServerError) it.error.message else ""
-            val msg = getString(R.string.network_error, details)
-            handleResponseError(msg)
+        val errorListener: (ConnectionError) -> Unit = {
+            handleResponseError(getString(R.string.network_error, it.details))
         }
         logInButton.isEnabled = false
         logInButton.setText(R.string.logging_in)

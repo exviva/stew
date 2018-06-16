@@ -1,8 +1,5 @@
 package net.stew.stew
 
-import android.os.AsyncTask
-import org.jsoup.nodes.Document
-
 class PostsProvider(
         private val application: Application,
         private val collection: PostCollection,
@@ -10,13 +7,13 @@ class PostsProvider(
 
     interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
-        fun onPostsLoadError(responseStatus: ResponseStatus)
+        fun onPostsLoadError(connectionError: ConnectionError)
     }
 
-    private var loadingTask: AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>? = null
+    private var loadingTask: Task? = null
     private var loadingTaskIsForMorePosts: Boolean = false
 
-    private val errorListener: (ResponseStatus) -> Unit = {
+    private val errorListener: (ConnectionError) -> Unit = {
         loadingTask = null
         listener.onPostsLoadError(it)
     }

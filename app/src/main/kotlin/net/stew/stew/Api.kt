@@ -14,9 +14,11 @@ class Api(private val application: Application) {
         const val loginPath = "/login"
     }
 
-    private val runningTasks = arrayListOf<AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>>()
+    private val runningTasks = arrayListOf<Task>()
 
-    fun logIn(userName: String, password: String, errorListener: (ResponseStatus) -> Unit, listener: (String?, String?, String?) -> Unit) {
+    fun logIn(userName: String, password: String, errorListener: (ConnectionError) -> Unit,
+        listener: (String?, String?, String?) -> Unit) {
+
         val loginPageConnection = connect(loginPath, useSsl = true)
         executeRequest(loginPageConnection, errorListener) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")
@@ -38,8 +40,8 @@ class Api(private val application: Application) {
         }
     }
 
-    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ResponseStatus) -> Unit,
-        listener: (Collection<Post>) -> Unit): AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
+    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ConnectionError) -> Unit,
+        listener: (Collection<Post>) -> Unit): Task {
 
         val subdomain = (collection.subdomain ?: "www").replace(":current_user", application.currentSession!!.userName)
         var path = collection.path ?: "/"
@@ -59,11 +61,11 @@ class Api(private val application: Application) {
         }
     }
 
-    fun repost(post: Post, errorListener: (ResponseStatus) -> Unit, listener: () -> Unit) {
+    fun repost(post: Post, errorListener: (ConnectionError) -> Unit, listener: () -> Unit) {
         val connection = connect("/remote/repost").
             method(Connection.Method.POST).
             data("parent_id", post.id.toString())
-        val wrappingErrorListener: (ResponseStatus) -> Unit = {
+        val wrappingErrorListener: (ConnectionError) -> Unit = {
             post.repostState = Post.RepostState.NOT_REPOSTED
             errorListener(it)
         }
@@ -93,14 +95,20 @@ class Api(private val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: (ResponseStatus) -> Unit, listener: (Document) -> Unit):
-            AsyncTask<Void, Void, Pair<ResponseStatus, Document?>> {
-        val task = Task(connection, errorListener) { task, document ->
+    private fun executeRequest(connection: Connection, errorListener: (ConnectionError) -> Unit, listener: (Document) -> Unit): Task {
+        val task = Task(connection) { task, connectionError, document ->
             runningTasks.remove(task)
-            listener(document)
+
+            if (connectionError != null) {
+                errorListener(connectionError)
+            } else {
+                listener(document!!)
+            }
         }
+
         task.execute()
         runningTasks.add(task)
+
         return task
     }
 
@@ -135,42 +143,40 @@ class Api(private val application: Application) {
 
 }
 
-private class Task(val connection: Connection, val errorListener: (ResponseStatus) -> Unit, val listener: (Task, Document) -> Unit):
-        AsyncTask<Void, Void, Pair<ResponseStatus, Document?>>() {
-    override fun doInBackground(vararg params: Void?): Pair<ResponseStatus, Document?> {
-        var responseStatus: ResponseStatus = ResponseStatus.Ok()
+class Task(val connection: Connection, val listener: (Task, ConnectionError?, Document?) -> Unit):
+        AsyncTask<Void, Void, Pair<ConnectionError?, Document?>>() {
+    override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
+        var responseStatus: ConnectionError? = null
         var document: Document? = null
 
         try {
             val originalUrl = connection.request().url()
             val response = connection.execute()
             if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
-                responseStatus = ResponseStatus.Forbidden()
+                responseStatus = ConnectionError(null, 403)
             } else {
                 document = response.parse()
             }
         } catch (e: IOException) {
-            responseStatus = if (e is HttpStatusException && e.statusCode == 403)
-                ResponseStatus.Forbidden() else ResponseStatus.ServerError(e)
+            val statusCode = if (e is HttpStatusException) e.statusCode else null
+            responseStatus = ConnectionError(e, statusCode)
         }
 
         return Pair(responseStatus, document)
     }
 
-    override fun onPostExecute(pair: Pair<ResponseStatus, Document?>) {
+    override fun onPostExecute(pair: Pair<ConnectionError?, Document?>) {
         val responseStatus = pair.first
         val document = pair.second
 
-        if (responseStatus is ResponseStatus.Ok && document != null) {
-            listener(this, document)
-        } else {
-            errorListener(responseStatus)
-        }
+        listener(this, responseStatus, document)
     }
 }
 
-sealed class ResponseStatus {
-    class Ok : ResponseStatus()
-    class Forbidden : ResponseStatus()
-    class ServerError(val error: Exception) : ResponseStatus()
+class ConnectionError(val error: Exception?, val statusCode: Int?) {
+
+    val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
+
+    fun isForbidden() = statusCode == 403
+
 }

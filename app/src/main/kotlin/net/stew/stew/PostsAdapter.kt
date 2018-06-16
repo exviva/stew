@@ -111,13 +111,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
             isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
 
             setOnClickListener {
-                val errorListener: (ResponseStatus) -> Unit = {
-                    when (it) {
-                        is ResponseStatus.Forbidden -> handleForbidden()
-                        is ResponseStatus.ServerError -> {
-                            notifyDataSetChanged()
-                            showErrorToast(it.error)
-                        }
+                val errorListener: (ConnectionError) -> Unit = {
+                    if (it.isForbidden()) {
+                        handleForbidden()
+                    } else {
+                        notifyDataSetChanged()
+                        showErrorToast(it)
                     }
                 }
                 application.api.repost(post, errorListener) { notifyDataSetChanged() }
@@ -178,13 +177,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         stopLoading()
     }
 
-    override fun onPostsLoadError(responseStatus: ResponseStatus) {
-        when (responseStatus) {
-            is ResponseStatus.Forbidden -> handleForbidden()
-            is ResponseStatus.ServerError -> {
-                stopLoading()
-                showErrorToast(responseStatus.error)
-            }
+    override fun onPostsLoadError(connectionError: ConnectionError) {
+        if (connectionError.isForbidden()) {
+            handleForbidden()
+        } else {
+            stopLoading()
+            showErrorToast(connectionError)
         }
     }
 
@@ -212,9 +210,9 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    private fun showErrorToast(error: Exception) {
+    private fun showErrorToast(error: ConnectionError) {
         if (isActive) {
-            val msg = activity.getString(R.string.network_error, error.message)
+            val msg = activity.getString(R.string.network_error, error.details)
             Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
         }
     }
