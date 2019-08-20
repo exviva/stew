@@ -111,12 +111,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
             isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
 
             setOnClickListener {
-                val errorListener: (ConnectionError) -> Unit = {
-                    if (it.isForbidden()) {
+                val errorListener: (ConnectionError) -> Unit = { err ->
+                    if (err.isForbidden()) {
                         handleForbidden()
                     } else {
                         notifyDataSetChanged()
-                        showErrorToast(it)
+                        showErrorToast(err)
                     }
                 }
                 application.api.repost(post, errorListener) { notifyDataSetChanged() }

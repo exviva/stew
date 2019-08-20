@@ -5,9 +5,9 @@ import android.net.Uri
 class Post(val id: Int,
            val uri: Uri,
            val description: String,
-           val author: Post.Author,
-           val group: Post.Group?,
-           var repostState: Post.RepostState) {
+           val author: Author,
+           val group: Group?,
+           var repostState: RepostState) {
 
     enum class RepostState {
         NOT_REPOSTED,

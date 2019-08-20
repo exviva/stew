@@ -31,10 +31,10 @@ class Api(private val application: Application) {
                 data("password", password).
                 data("authenticity_token", authenticityToken)
 
-            executeRequest(connection, errorListener) {
+            executeRequest(connection, errorListener) { doc ->
                 val userIdCookie = connection.response().cookie("soup_user_id")
                 val sessionIdCookie = connection.response().cookie("soup_session_id")
-                val csrfToken = it.select("meta[name=csrf-token]").attr("content")
+                val csrfToken = doc.select("meta[name=csrf-token]").attr("content")
                 listener(userIdCookie, sessionIdCookie, csrfToken)
             }
         }
@@ -143,7 +143,7 @@ class Api(private val application: Application) {
 
 }
 
-class Task(val connection: Connection, val listener: (Task, ConnectionError?, Document?) -> Unit):
+class Task(private val connection: Connection, val listener: (Task, ConnectionError?, Document?) -> Unit):
         AsyncTask<Void, Void, Pair<ConnectionError?, Document?>>() {
     override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
         var responseStatus: ConnectionError? = null
@@ -158,7 +158,7 @@ class Task(val connection: Connection, val listener: (Task, ConnectionError?, Do
                 document = response.parse()
             }
         } catch (e: IOException) {
-            val statusCode = if (e is HttpStatusException) e.statusCode else null
+            val statusCode = (e as? HttpStatusException)?.statusCode
             responseStatus = ConnectionError(e, statusCode)
         }
 
@@ -173,7 +173,7 @@ class Task(val connection: Connection, val listener: (Task, ConnectionError?, Do
     }
 }
 
-class ConnectionError(val error: Exception?, val statusCode: Int?) {
+class ConnectionError(private val error: Exception?, private val statusCode: Int?) {
 
     val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
 

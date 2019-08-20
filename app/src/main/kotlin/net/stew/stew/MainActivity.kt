@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             val activePostCollection = when {
                 savedInstanceState == null -> PostCollection.Friends
                 savedInstanceState.containsKey(ACTIVE_PREDEFINED_POST_COLLECTION_TAG) -> PostCollection.Predefined[savedInstanceState.getInt(ACTIVE_PREDEFINED_POST_COLLECTION_TAG)]
-                else -> SubdomainPostCollection(savedInstanceState.getString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG))
+                else -> SubdomainPostCollection(savedInstanceState.getString(ACTIVE_SUBDOMAIN_POST_COLLECTION_TAG)!!)
             }
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)

@@ -3,7 +3,7 @@ package net.stew.stew
 class PostsProvider(
         private val application: Application,
         private val collection: PostCollection,
-        private val listener: PostsProvider.Listener) {
+        private val listener: Listener) {
 
     interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
