@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
             postsView.layoutManager = layoutManager
             postsView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter.itemCount - 3) {
+                    if (layoutManager.findLastVisibleItemPosition() == activePostsAdapter.itemCount - 5) {
                         activePostsAdapter.loadMore()
                     }
                 }
