@@ -186,6 +186,10 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
+    override fun onPostsLoadRetrying(retriesLeft: Int) {
+        showRetryToast(retriesLeft)
+    }
+
     fun loadMore() {
         loadMode = LoadMode.APPEND
         load()
@@ -213,6 +217,13 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private fun showErrorToast(error: ConnectionError) {
         if (isActive) {
             val msg = activity.getString(R.string.network_error, error.details)
+            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun showRetryToast(retriesLeft: Int) {
+        if (isActive) {
+            val msg = activity.getString(R.string.retriable_network_error, retriesLeft)
             Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
         }
     }

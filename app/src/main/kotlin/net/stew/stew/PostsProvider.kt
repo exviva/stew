@@ -8,14 +8,19 @@ class PostsProvider(
     interface Listener {
         fun onPostsLoaded(posts: Collection<Post>)
         fun onPostsLoadError(connectionError: ConnectionError)
+        fun onPostsLoadRetrying(retriesLeft: Int)
     }
 
     private var loadingTask: Task? = null
     private var loadingTaskIsForMorePosts: Boolean = false
 
     private val errorListener: (ConnectionError) -> Unit = {
-        loadingTask = null
-        listener.onPostsLoadError(it)
+        if (it.retriesLeft != null) {
+            listener.onPostsLoadRetrying(it.retriesLeft)
+        } else {
+            loadingTask = null
+            listener.onPostsLoadError(it)
+        }
     }
     private val successListener: (Collection<Post>) -> Unit = {
         loadingTask = null

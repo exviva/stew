@@ -56,7 +56,7 @@ class Api(private val application: Application) {
             connection.data("since", lastPost.id.toString())
         }
 
-        return executeRequest(connection, errorListener) {
+        return executeRequest(connection, errorListener, retries = 2) {
             listener(parsePosts(it))
         }
     }
@@ -95,8 +95,14 @@ class Api(private val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: (ConnectionError) -> Unit, listener: (Document) -> Unit): Task {
-        val task = Task(connection) { task, connectionError, document ->
+    private fun executeRequest(connection: Connection, errorListener: (ConnectionError) -> Unit,
+                               retries: Int = 0, listener: (Document) -> Unit): Task {
+        val task = Task(connection, retries) { task, connectionError, document ->
+            if (connectionError?.retriesLeft != null) {
+                errorListener(connectionError)
+                return@Task
+            }
+
             runningTasks.remove(task)
 
             if (connectionError != null) {
@@ -143,26 +149,40 @@ class Api(private val application: Application) {
 
 }
 
-class Task(private val connection: Connection, val listener: (Task, ConnectionError?, Document?) -> Unit):
-        AsyncTask<Void, Void, Pair<ConnectionError?, Document?>>() {
+class Task(private val connection: Connection, var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit):
+        AsyncTask<Void, Int, Pair<ConnectionError?, Document?>>() {
     override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
         var responseStatus: ConnectionError? = null
         var document: Document? = null
 
-        try {
-            val originalUrl = connection.request().url()
-            val response = connection.execute()
-            if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
-                responseStatus = ConnectionError(null, 403)
-            } else {
-                document = response.parse()
-            }
-        } catch (e: IOException) {
-            val statusCode = (e as? HttpStatusException)?.statusCode
-            responseStatus = ConnectionError(e, statusCode)
-        }
+        while (true) {
+            try {
+                val originalUrl = connection.request().url()
+                val response = connection.execute()
 
-        return Pair(responseStatus, document)
+                if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
+                    responseStatus = ConnectionError(null, 403)
+                } else {
+                    document = response.parse()
+                }
+            } catch (e: IOException) {
+                val statusCode = (e as? HttpStatusException)?.statusCode
+
+                if (retries > 0 && statusCode?.let { it >= 500 } == true) {
+                    retries--
+                    publishProgress(retries)
+                    continue
+                }
+
+                responseStatus = ConnectionError(e, statusCode)
+            }
+
+            return Pair(responseStatus, document)
+        }
+    }
+
+    override fun onProgressUpdate(vararg values: Int?) {
+        listener(this, ConnectionError(null, null, values[0]), null)
     }
 
     override fun onPostExecute(pair: Pair<ConnectionError?, Document?>) {
@@ -173,7 +193,7 @@ class Task(private val connection: Connection, val listener: (Task, ConnectionEr
     }
 }
 
-class ConnectionError(private val error: Exception?, private val statusCode: Int?) {
+open class ConnectionError(private val error: Exception?, private val statusCode: Int?, val retriesLeft: Int? = null) {
 
     val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
 
