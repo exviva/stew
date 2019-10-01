@@ -40,6 +40,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     private val application = activity.application as Application
     private var posts = application.postsStore.restore(collection)
+    private var lastLoadedPageSize: Int? = null
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
     private var isActive = false
@@ -171,6 +172,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     override fun onPostsLoaded(posts: Collection<Post>) {
         this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
+        lastLoadedPageSize = posts.size
 
         application.postsStore.store(collection, this.posts)
         notifyDataSetChanged()
@@ -190,9 +192,11 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         showRetryToast(retriesLeft)
     }
 
-    fun loadMore() {
-        loadMode = LoadMode.APPEND
-        load()
+    fun maybeLoadMore(visibleItemPosition: Int) {
+        if (visibleItemPosition == itemCount - lastLoadedPageSize!! + 3) {
+            loadMode = LoadMode.APPEND
+            load()
+        }
     }
 
     private fun load() {
