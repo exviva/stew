@@ -19,12 +19,12 @@ class Api(private val application: Application) {
     fun logIn(userName: String, password: String, errorListener: (ConnectionError) -> Unit,
         listener: (String?, String?, String?) -> Unit) {
 
-        val loginPageConnection = connect(loginPath, useSsl = true)
+        val loginPageConnection = connect(loginPath)
         executeRequest(loginPageConnection, errorListener) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")
             val authenticityToken = it.select("input[name=authenticity_token]").attr("value")
 
-            val connection = connect(loginPath, useSsl = true).
+            val connection = connect(loginPath).
                 method(Connection.Method.POST).
                 cookie("soup_session_id", sessionId).
                 data("login", userName).
@@ -82,8 +82,8 @@ class Api(private val application: Application) {
         runningTasks.clear()
     }
 
-    private fun connect(path: String, subdomain: String? = null, useSsl: Boolean = false, requireAuthentication: Boolean = true): Connection {
-        val connection = Jsoup.connect("http${if (useSsl) "s" else ""}://${subdomain ?: "www"}.soup.io$path")
+    private fun connect(path: String, subdomain: String? = null, requireAuthentication: Boolean = true): Connection {
+        val connection = Jsoup.connect("https://${subdomain ?: "www"}.soup.io$path")
         val currentSession = application.currentSession
 
         if (requireAuthentication && currentSession != null) {
