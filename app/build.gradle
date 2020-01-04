@@ -41,10 +41,10 @@ android {
 
 dependencies {
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'androidx.recyclerview:recyclerview:1.1.0'
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     implementation 'org.jsoup:jsoup:1.12.1'
-    implementation 'com.facebook.fresco:fresco:2.0.0'
-    implementation 'com.facebook.fresco:animated-gif:2.0.0'
+    implementation 'com.facebook.fresco:fresco:2.1.0'
+    implementation 'com.facebook.fresco:animated-gif:2.1.0'
 }
