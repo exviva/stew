@@ -44,7 +44,6 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
     private var isActive = false
-    private var recyclerView: RecyclerView? = null
 
 
     fun activate(load: Boolean) {
@@ -61,14 +60,6 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     fun deactivate() {
         hideLoadingIndicator()
         isActive = false
-    }
-
-    override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
-        this.recyclerView = recyclerView
-    }
-
-    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
-        this.recyclerView = null
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {

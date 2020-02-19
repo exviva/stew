@@ -149,7 +149,7 @@ class Api(private val application: Application) {
 
 }
 
-class Task(private val connection: Connection, var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit):
+class Task(private val connection: Connection, private var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit):
         AsyncTask<Void, Int, Pair<ConnectionError?, Document?>>() {
     override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
         var responseStatus: ConnectionError? = null
