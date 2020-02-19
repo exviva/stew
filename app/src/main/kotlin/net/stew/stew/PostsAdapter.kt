@@ -34,6 +34,9 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+
+        val messageTextView = itemView.findViewById<TextView>(R.id.messageTextView)
+
     }
 
     enum class LoadMode {
@@ -43,9 +46,9 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     private val application = activity.application as Application
     private var posts = application.postsStore.restore(collection)
-    private var lastLoadedPageSize: Int? = null
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
+    private var retriesLeft: Int? = null
     private var isActive = false
 
 
@@ -82,7 +85,15 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        if (position == posts.size && isLoading()) return
+        if (position == posts.size && isLoading() ) {
+            val loadingViewHolder = viewHolder as LoadingViewHolder
+
+            loadingViewHolder.messageTextView.text = retriesLeft?.
+                    let { activity.getString(R.string.loading_with_retry, it) } ?:
+                    activity.getString(R.string.loading)
+
+            return
+        }
 
         val post = posts[position]
         val postViewHolder = viewHolder as PostViewHolder
@@ -174,7 +185,6 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     override fun onPostsLoaded(posts: Collection<Post>) {
         this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
-        lastLoadedPageSize = posts.size
 
         application.postsStore.store(collection, this.posts)
         stopLoading()
@@ -191,11 +201,12 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     override fun onPostsLoadRetrying(retriesLeft: Int) {
-        showRetryToast(retriesLeft)
+        this.retriesLeft = retriesLeft
+        notifyDataSetChanged()
     }
 
     fun maybeLoadMore(visibleItemPosition: Int) {
-        if (lastLoadedPageSize?.let { visibleItemPosition == itemCount - it + 3 } == true) {
+        if (posts.size - visibleItemPosition < 10) {
             loadMode = LoadMode.APPEND
             load()
         }
@@ -207,6 +218,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     private fun stopLoading() {
+        retriesLeft = null
         notifyDataSetChanged()
     }
 
@@ -215,13 +227,6 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private fun showErrorToast(error: ConnectionError) {
         if (isActive) {
             val msg = activity.getString(R.string.network_error, error.details)
-            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
-        }
-    }
-
-    private fun showRetryToast(retriesLeft: Int) {
-        if (isActive) {
-            val msg = activity.getString(R.string.retriable_network_error, retriesLeft)
             Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
         }
     }
