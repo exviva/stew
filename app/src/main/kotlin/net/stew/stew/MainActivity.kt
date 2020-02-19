@@ -8,10 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import android.view.MenuItem
-import android.view.View
 import kotlinx.android.synthetic.main.activity_main.drawerLayout
 import kotlinx.android.synthetic.main.activity_main.drawerListView
-import kotlinx.android.synthetic.main.activity_main.loadingIndicator
 import kotlinx.android.synthetic.main.activity_main.postsView
 
 class MainActivity : AppCompatActivity() {
@@ -116,15 +114,6 @@ class MainActivity : AppCompatActivity() {
         } else {
             super.onBackPressed()
         }
-    }
-
-    fun showLoadingIndicator() {
-        loadingIndicator.visibility = View.VISIBLE
-        loadingIndicator.animate().alpha(1.0f)
-    }
-
-    fun hideLoadingIndicator() {
-        loadingIndicator.animate().alpha(0.0f)
     }
 
     fun logOut() {

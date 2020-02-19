@@ -15,7 +15,7 @@ import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
 
 class PostsAdapter(private val activity: MainActivity, var collection: PostCollection) :
-    RecyclerView.Adapter<PostsAdapter.PostViewHolder>(), PostsProvider.Listener {
+    RecyclerView.Adapter<RecyclerView.ViewHolder>(), PostsProvider.Listener {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -31,6 +31,9 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         val groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
         val description = itemView.findViewById(R.id.descriptionTextView) as TextView
 
+    }
+
+    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
     }
 
     enum class LoadMode {
@@ -52,17 +55,20 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         if (load) {
             loadMode = LoadMode.REPLACE
             load()
-        } else if (postsProvider.isLoading()) {
-            showLoadingIndicator()
         }
     }
 
     fun deactivate() {
-        hideLoadingIndicator()
         isActive = false
     }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, i: Int): PostViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        if (viewType == 1) {
+            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.loading, viewGroup, false)
+
+            return LoadingViewHolder(view)
+        }
+
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
 
         return PostViewHolder(view).apply {
@@ -75,8 +81,11 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    override fun onBindViewHolder(postViewHolder: PostViewHolder, i: Int) {
-        val post = posts[i]
+    override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
+        if (position == posts.size && isLoading()) return
+
+        val post = posts[position]
+        val postViewHolder = viewHolder as PostViewHolder
 
         postViewHolder.postImageView.apply {
             if (tag != post.uri) {
@@ -159,14 +168,15 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    override fun getItemCount() = posts.size
+    override fun getItemCount(): Int = posts.size + if (isLoading()) 1 else 0
+
+    override fun getItemViewType(position: Int) = if (isLoading() && position == posts.size) 1 else 0
 
     override fun onPostsLoaded(posts: Collection<Post>) {
         this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
         lastLoadedPageSize = posts.size
 
         application.postsStore.store(collection, this.posts)
-        notifyDataSetChanged()
         stopLoading()
     }
 
@@ -174,9 +184,10 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         if (connectionError.isForbidden()) {
             handleForbidden()
         } else {
-            stopLoading()
             showErrorToast(connectionError)
         }
+
+        stopLoading()
     }
 
     override fun onPostsLoadRetrying(retriesLeft: Int) {
@@ -191,23 +202,15 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     private fun load() {
-        showLoadingIndicator()
         postsProvider.loadPosts(if (loadMode == LoadMode.REPLACE) null else posts.lastOrNull())
+        notifyDataSetChanged()
     }
 
     private fun stopLoading() {
-        hideLoadingIndicator()
+        notifyDataSetChanged()
     }
 
-    private fun showLoadingIndicator() {
-        activity.showLoadingIndicator()
-    }
-
-    private fun hideLoadingIndicator() {
-        if (isActive) {
-            activity.hideLoadingIndicator()
-        }
-    }
+    private fun isLoading() = postsProvider.isLoading()
 
     private fun showErrorToast(error: ConnectionError) {
         if (isActive) {
