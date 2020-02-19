@@ -184,7 +184,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     fun maybeLoadMore(visibleItemPosition: Int) {
-        if (visibleItemPosition == itemCount - lastLoadedPageSize!! + 3) {
+        if (lastLoadedPageSize?.let { visibleItemPosition == itemCount - it + 3 } == true) {
             loadMode = LoadMode.APPEND
             load()
         }
