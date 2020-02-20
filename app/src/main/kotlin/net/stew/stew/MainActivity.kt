@@ -3,14 +3,12 @@ package net.stew.stew
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import android.view.MenuItem
-import kotlinx.android.synthetic.main.activity_main.drawerLayout
-import kotlinx.android.synthetic.main.activity_main.drawerListView
-import kotlinx.android.synthetic.main.activity_main.postsView
+import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 

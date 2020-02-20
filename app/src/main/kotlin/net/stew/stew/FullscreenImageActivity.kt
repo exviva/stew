@@ -8,7 +8,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.View
 import com.facebook.drawee.backends.pipeline.Fresco
-import kotlinx.android.synthetic.main.activity_fullscreen_image.imageView
+import kotlinx.android.synthetic.main.activity_fullscreen_image.*
 
 class FullscreenImageActivity : Activity() {
 
