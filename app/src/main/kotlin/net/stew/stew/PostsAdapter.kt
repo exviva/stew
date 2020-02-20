@@ -35,7 +35,8 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
-        val messageTextView = itemView.findViewById<TextView>(R.id.messageTextView)
+        val messageTextView = itemView.findViewById(R.id.messageTextView) as TextView
+        val retryButton = itemView.findViewById(R.id.retryButton) as Button
 
     }
 
@@ -49,6 +50,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private val postsProvider = PostsProvider(application, collection, this)
     private var loadMode = LoadMode.REPLACE
     private var retriesLeft: Int? = null
+    private var lastPostsLoadConnectionError: ConnectionError? = null
     private var isActive = false
 
 
@@ -69,7 +71,9 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         if (viewType == 1) {
             val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.loading, viewGroup, false)
 
-            return LoadingViewHolder(view)
+            return LoadingViewHolder(view).apply {
+                retryButton.setOnClickListener { load() }
+            }
         }
 
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
@@ -85,12 +89,16 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        if (position == posts.size && isLoading() ) {
+        if (position == posts.size && shouldShowMessageCard() ) {
             val loadingViewHolder = viewHolder as LoadingViewHolder
 
-            loadingViewHolder.messageTextView.text = retriesLeft?.
-                    let { activity.getString(R.string.loading_with_retry, it) } ?:
-                    activity.getString(R.string.loading)
+            loadingViewHolder.messageTextView.apply {
+                text = lastPostsLoadConnectionError?.details
+                        ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
+                                ?: activity.getString(R.string.loading)
+            }
+
+            loadingViewHolder.retryButton.visibility = if (lastPostsLoadConnectionError == null) View.GONE else View.VISIBLE
 
             return
         }
@@ -131,7 +139,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
                         showErrorToast(err)
                     }
                 }
-                application.api.repost(post, errorListener) { notifyDataSetChanged() }
+                application.api.repost(post, errorListener, this@PostsAdapter::notifyDataSetChanged)
                 notifyDataSetChanged()
             }
 
@@ -179,25 +187,25 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    override fun getItemCount(): Int = posts.size + if (isLoading()) 1 else 0
+    override fun getItemCount(): Int = posts.size + if (shouldShowMessageCard()) 1 else 0
 
-    override fun getItemViewType(position: Int) = if (isLoading() && position == posts.size) 1 else 0
+    override fun getItemViewType(position: Int) = if (shouldShowMessageCard() && position == posts.size) 1 else 0
 
     override fun onPostsLoaded(posts: Collection<Post>) {
         this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
 
         application.postsStore.store(collection, this.posts)
-        stopLoading()
+        notifyDataSetChanged()
     }
 
     override fun onPostsLoadError(connectionError: ConnectionError) {
+        lastPostsLoadConnectionError = connectionError
+
         if (connectionError.isForbidden()) {
             handleForbidden()
-        } else {
-            showErrorToast(connectionError)
         }
 
-        stopLoading()
+        notifyDataSetChanged()
     }
 
     override fun onPostsLoadRetrying(retriesLeft: Int) {
@@ -206,23 +214,20 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     fun maybeLoadMore(visibleItemPosition: Int) {
-        if (posts.size - visibleItemPosition < 10) {
+        if (posts.size - visibleItemPosition in 1..9) {
             loadMode = LoadMode.APPEND
             load()
         }
     }
 
     private fun load() {
+        retriesLeft = null
+        lastPostsLoadConnectionError = null
         postsProvider.loadPosts(if (loadMode == LoadMode.REPLACE) null else posts.lastOrNull())
         notifyDataSetChanged()
     }
 
-    private fun stopLoading() {
-        retriesLeft = null
-        notifyDataSetChanged()
-    }
-
-    private fun isLoading() = postsProvider.isLoading()
+    private fun shouldShowMessageCard() = postsProvider.isLoading() || lastPostsLoadConnectionError != null
 
     private fun showErrorToast(error: ConnectionError) {
         if (isActive) {

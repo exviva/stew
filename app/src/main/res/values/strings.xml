@@ -26,4 +26,5 @@
     <string name="soup_of_user">%1$s\'s soup</string>
     <string name="userNameHint">username</string>
     <string name="version">Version %1$s</string>
+    <string name="retry">Retry</string>
 </resources>
