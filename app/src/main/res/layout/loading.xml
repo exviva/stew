@@ -19,7 +19,8 @@
         android:text="@string/loading"
         android:textAlignment="center"
         android:textSize="24sp"
-        android:textStyle="italic" />
+        android:textStyle="italic"
+        android:gravity="center_horizontal" />
 
     <Button
         android:id="@+id/retryButton"
