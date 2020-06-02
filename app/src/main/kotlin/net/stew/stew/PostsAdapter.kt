@@ -238,7 +238,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
 
     private fun handleForbidden() {
         Toast.makeText(activity, R.string.forbidden, Toast.LENGTH_SHORT).show()
-        activity.logOut()
+        application.logOut()
     }
 
 }

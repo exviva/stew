@@ -106,10 +106,7 @@
         <Button
             android:id="@+id/repostButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textStyle="bold"
-            android:textColor="@color/button"
-            android:background="@drawable/button_background" />
+            android:layout_height="wrap_content" />
 
     </LinearLayout>
 

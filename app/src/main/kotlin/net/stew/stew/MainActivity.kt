@@ -1,10 +1,7 @@
 package net.stew.stew
 
 import android.content.Intent
-import android.content.res.Configuration
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -18,16 +15,14 @@ class MainActivity : AppCompatActivity() {
         private const val LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG = "LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG"
     }
 
-    private lateinit var drawerToggle: ActionBarDrawerToggle
     private lateinit var postsAdapters: HashMap<PostCollection, PostsAdapter>
     private lateinit var activePostsAdapter: PostsAdapter
-    private lateinit var drawerAdapter: DrawerAdapter
     private var lastViewedPredefinedCollection: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (requireCurrentSession()) {
+        if ((application as Application).requireCurrentSession()) {
             setContentView(R.layout.activity_main)
 
             val layoutManager = LinearLayoutManager(this)
@@ -41,8 +36,6 @@ class MainActivity : AppCompatActivity() {
                 }
             })
 
-            drawerAdapter = DrawerAdapter(this)
-
             if (savedInstanceState != null && savedInstanceState.containsKey(LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG)) {
                 lastViewedPredefinedCollection = savedInstanceState.getInt(LAST_VIEWED_PREDEFINED_POST_COLLECTION_TAG)
             }
@@ -55,41 +48,20 @@ class MainActivity : AppCompatActivity() {
 
             setActivePostsAdapter(activePostCollection, savedInstanceState == null)
 
-            drawerListView.adapter = drawerAdapter
-            drawerListView.setOnItemClickListener { _, _, position, _ ->
-                val postCollectionValuesSize = PostCollection.Predefined.size
-                when {
-                    position < postCollectionValuesSize -> setActivePostsAdapter(PostCollection.Predefined[position], true)
-                    position == postCollectionValuesSize -> logOut()
-                    else -> startActivity(Intent(this, AboutActivity::class.java))
+            navigationView.setOnNavigationItemSelectedListener { item ->
+                when(item.itemId) {
+                    R.id.friends -> setActivePostsAdapter(PostCollection.Friends, true)
+                    R.id.fof -> setActivePostsAdapter(PostCollection.FOF, true)
+                    R.id.everyone -> setActivePostsAdapter(PostCollection.Everyone, true)
+                    R.id.me -> setActivePostsAdapter(PostCollection.Me, true)
+                    R.id.about -> {
+                        startActivity(Intent(this, AboutActivity::class.java))
+                        return@setOnNavigationItemSelectedListener false
+                    }
                 }
-                drawerLayout.closeDrawers()
+                true
             }
-
-            drawerToggle = ActionBarDrawerToggle(this, drawerLayout, android.R.string.ok, android.R.string.ok)
-            drawerLayout.addDrawerListener(drawerToggle)
-            supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-            supportActionBar!!.setHomeButtonEnabled(true)
         }
-    }
-
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-
-        drawerToggle.onConfigurationChanged(newConfig)
-    }
-
-    override fun onOptionsItemSelected(menuItem: MenuItem): Boolean {
-        if (drawerToggle.onOptionsItemSelected(menuItem)) {
-            return true
-        }
-
-        return super.onOptionsItemSelected(menuItem)
-    }
-
-    override fun onPostCreate(savedInstanceState: Bundle?) {
-        super.onPostCreate(savedInstanceState)
-        drawerToggle.syncState()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -115,11 +87,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun logOut() {
-        (application as Application).logOut()
-        requireCurrentSession()
-    }
-
     fun setActivePostsAdapter(postCollection: PostCollection, load: Boolean) {
         lastViewedPredefinedCollection = null
 
@@ -137,21 +104,6 @@ class MainActivity : AppCompatActivity() {
 
         activePostsAdapter.activate(load)
         postsView.adapter = activePostsAdapter
-        drawerAdapter.setActiveItemPosition(postCollection.ordinal())
-        title = if (postCollection.isPredefined())
-            resources.getStringArray(R.array.post_collections)[postCollection.ordinal()] else
-            getString(R.string.soup_of_user, postCollection.subdomain)
-    }
-
-    private fun requireCurrentSession(): Boolean {
-        if ((application as Application).currentSession == null) {
-            val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
-            finish()
-            return false
-        }
-
-        return true
     }
 
 }

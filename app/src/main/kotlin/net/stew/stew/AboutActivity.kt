@@ -12,6 +12,8 @@ class AboutActivity : AppCompatActivity() {
         setContentView(R.layout.activity_about)
 
         versionTextView.text = getString(R.string.version, BuildConfig.VERSION_NAME)
+
+        logOutButton.setOnClickListener { (application as Application).logOut() }
     }
 
 }

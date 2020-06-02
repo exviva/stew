@@ -1,6 +1,7 @@
 package net.stew.stew
 
 import android.content.Context
+import android.content.Intent
 import com.facebook.drawee.backends.pipeline.Fresco
 
 class Application : android.app.Application() {
@@ -39,6 +40,19 @@ class Application : android.app.Application() {
             remove("sessionIdCookie").
             remove("csrfToken").
             apply()
+
+        val intent = Intent(this, LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+    }
+
+    fun requireCurrentSession(): Boolean {
+        if (currentSession == null) {
+            logOut()
+            return false
+        }
+
+        return true
     }
 
     private fun restoreCurrentSession() {

@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
 
     defaultConfig {
         applicationId "net.stew.stew"
@@ -47,4 +47,5 @@ dependencies {
     implementation 'org.jsoup:jsoup:1.13.1'
     implementation 'com.facebook.fresco:fresco:2.1.0'
     implementation 'com.facebook.fresco:animated-gif:2.2.0'
+    implementation 'com.google.android.material:material:1.1.0'
 }

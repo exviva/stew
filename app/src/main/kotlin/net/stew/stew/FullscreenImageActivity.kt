@@ -33,7 +33,7 @@ class FullscreenImageActivity : Activity() {
 
         setContentView(R.layout.activity_fullscreen_image)
 
-        val uri: Uri = intent.getParcelableExtra("uri")
+        val uri: Uri = intent.getParcelableExtra("uri")!!
         val controller = Fresco.newDraweeControllerBuilder().
             setUri(uri).
             setAutoPlayAnimations(true).

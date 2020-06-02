@@ -25,11 +25,10 @@
 
         <activity android:name=".LoginActivity"
             android:label="@string/log_in"
-            android:theme="@style/AppTheme.NoActionBar"
             android:screenOrientation="portrait" />
 
         <activity android:name=".FullscreenImageActivity"
-            android:theme="@style/AppTheme.NoActionBar.Fullscreen" />
+            android:theme="@style/AppTheme.Fullscreen" />
 
         <activity android:name=".AboutActivity"
             android:label="@string/about"

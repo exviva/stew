@@ -26,10 +26,7 @@
         android:id="@+id/retryButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/retry"
-        android:textStyle="bold"
-        android:textColor="@color/button"
-        android:background="@drawable/button_background" />
+        android:text="@string/retry" />
 
     </LinearLayout>
 

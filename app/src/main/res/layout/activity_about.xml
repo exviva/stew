@@ -1,9 +1,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:gravity="center"
+    android:layout_gravity="center"
+    android:gravity="center_horizontal"
+    android:padding="32dp"
     tools:context="net.stew.stew.AboutActivity">
 
     <ImageView
@@ -41,5 +43,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Version 0.1.0" />
+
+    <Button
+        android:id="@+id/logOutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/log_out" />
 
 </LinearLayout>

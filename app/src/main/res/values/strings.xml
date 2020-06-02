@@ -14,16 +14,13 @@
     <string name="logging_in">Logging in…</string>
     <string name="network_error">Oops, there seems to be a problem with your connection to soup.io: %1$s</string>
     <string name="passwordHint">Enter your password</string>
-    <string-array name="post_collections">
-        <item>Friends</item>
-        <item>Friends of friends</item>
-        <item>Everyone</item>
-        <item>My soup</item>
-    </string-array>
+    <string name="friends">Friends</string>
+    <string name="fof">FoF</string>
+    <string name="everyone">Everyone</string>
+    <string name="me">My soup</string>
     <string name="repost">Repost</string>
     <string name="reposted">Reposted</string>
     <string name="reposting">Reposting…</string>
-    <string name="soup_of_user">%1$s\'s soup</string>
     <string name="userNameHint">username</string>
     <string name="version">Version %1$s</string>
     <string name="retry">Retry</string>
