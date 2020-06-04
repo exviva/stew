@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.ui
 
 import android.content.Intent
 import android.os.Bundle
@@ -7,6 +7,9 @@ import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_login.*
+import net.stew.stew.Application
+import net.stew.stew.ConnectionError
+import net.stew.stew.R
 
 class LoginActivity : AppCompatActivity() {
 
@@ -52,7 +55,7 @@ class LoginActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private val textWatcher = object: TextWatcher {
+    private val textWatcher = object : TextWatcher {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
             val userNamePresent = userNameEditText.text.isNotEmpty()
             val passwordPresent = passwordEditText.text.isNotEmpty()

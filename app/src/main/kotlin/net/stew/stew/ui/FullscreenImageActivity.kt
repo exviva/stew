@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.ui
 
 import android.app.Activity
 import android.app.ActivityOptions
@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.View
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.activity_fullscreen_image.*
+import net.stew.stew.R
 
 class FullscreenImageActivity : Activity() {
 

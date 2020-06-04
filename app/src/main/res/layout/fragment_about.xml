@@ -2,17 +2,17 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:layout_gravity="center"
     android:gravity="center_horizontal"
+    android:orientation="vertical"
     android:padding="32dp"
-    tools:context="net.stew.stew.AboutActivity">
+    tools:context=".ui.AboutFragment">
 
     <ImageView
         android:layout_width="240dp"
         android:layout_height="240dp"
-        android:src="@drawable/logo"
         android:paddingBottom="32dp"
+        android:src="@drawable/logo"
         tools:ignore="ContentDescription" />
 
     <TextView
@@ -25,9 +25,9 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:paddingBottom="16dp"
         android:text="@string/headline"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:paddingBottom="16dp"
         android:textStyle="bold" />
 
     <TextView
@@ -35,8 +35,8 @@
         android:layout_height="wrap_content"
         android:autoLink="web"
         android:paddingBottom="8dp"
-        android:textStyle="bold"
-        android:text="@string/app_url" />
+        android:text="@string/app_url"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/versionTextView"
@@ -48,8 +48,8 @@
         android:id="@+id/logOutButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
         android:layout_marginTop="16dp"
+        android:padding="16dp"
         android:text="@string/log_out" />
 
 </LinearLayout>

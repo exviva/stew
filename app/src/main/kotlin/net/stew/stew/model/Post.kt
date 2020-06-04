@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.model
 
 import android.net.Uri
 

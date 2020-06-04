@@ -1,4 +1,8 @@
-package net.stew.stew
+package net.stew.stew.model
+
+import net.stew.stew.Application
+import net.stew.stew.ConnectionError
+import net.stew.stew.Task
 
 class PostsProvider(
         private val application: Application,

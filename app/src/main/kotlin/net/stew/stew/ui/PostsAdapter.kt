@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.ui
 
 import android.content.Intent
 import android.view.LayoutInflater
@@ -13,9 +13,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
+import net.stew.stew.Application
+import net.stew.stew.ConnectionError
+import net.stew.stew.R
+import net.stew.stew.model.Post
+import net.stew.stew.model.PostCollection
+import net.stew.stew.model.PostsProvider
+import net.stew.stew.model.SubdomainPostCollection
 
-class PostsAdapter(private val activity: MainActivity, var collection: PostCollection) :
-    RecyclerView.Adapter<RecyclerView.ViewHolder>(), PostsProvider.Listener {
+class PostsAdapter(private val activity: MainActivity, private val collection: PostCollection) :
+        RecyclerView.Adapter<RecyclerView.ViewHolder>(), PostsProvider.Listener {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -51,21 +58,6 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private var loadMode = LoadMode.REPLACE
     private var retriesLeft: Int? = null
     private var lastPostsLoadConnectionError: ConnectionError? = null
-    private var isActive = false
-
-
-    fun activate(load: Boolean) {
-        isActive = true
-
-        if (load) {
-            loadMode = LoadMode.REPLACE
-            load()
-        }
-    }
-
-    fun deactivate() {
-        isActive = false
-    }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == 1) {
@@ -89,7 +81,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        if (position == posts.size && shouldShowMessageCard() ) {
+        if (position == posts.size && shouldShowMessageCard()) {
             val loadingViewHolder = viewHolder as LoadingViewHolder
 
             loadingViewHolder.messageTextView.apply {
@@ -170,7 +162,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
             postViewHolder.authorImageView.setImageURI(post.author.imageUri, null)
             postViewHolder.authorLayout.setOnClickListener {
                 val collection = SubdomainPostCollection(post.author.name)
-                activity.setActivePostsAdapter(collection, true)
+                activity.setActivePostsFragment(collection, true)
             }
 
             if (group != null) {
@@ -179,7 +171,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
                 postViewHolder.groupImageView.setImageURI(group.imageUri, null)
                 postViewHolder.groupLayout.setOnClickListener {
                     val collection = SubdomainPostCollection(group.name)
-                    activity.setActivePostsAdapter(collection, true)
+                    activity.setActivePostsFragment(collection, true)
                 }
             } else {
                 postViewHolder.groupLayout.visibility = View.GONE
@@ -220,7 +212,7 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
         }
     }
 
-    private fun load() {
+    fun load() {
         retriesLeft = null
         lastPostsLoadConnectionError = null
         postsProvider.loadPosts(if (loadMode == LoadMode.REPLACE) null else posts.lastOrNull())
@@ -230,10 +222,8 @@ class PostsAdapter(private val activity: MainActivity, var collection: PostColle
     private fun shouldShowMessageCard() = postsProvider.isLoading() || lastPostsLoadConnectionError != null
 
     private fun showErrorToast(error: ConnectionError) {
-        if (isActive) {
-            val msg = activity.getString(R.string.network_error, error.details)
-            Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
-        }
+        val msg = activity.getString(R.string.network_error, error.details)
+        Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
     }
 
     private fun handleForbidden() {

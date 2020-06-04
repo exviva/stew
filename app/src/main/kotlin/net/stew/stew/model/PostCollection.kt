@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.model
 
 abstract class PostCollection {
 
@@ -11,8 +11,8 @@ abstract class PostCollection {
         val Predefined = listOf(Friends, FOF, Everyone, Me)
     }
 
-    abstract val subdomain : String?
-    abstract val path : String?
+    abstract val subdomain: String?
+    abstract val path: String?
 
     fun ordinal() = Predefined.indexOf(this)
     fun isPredefined() = ordinal() != -1
@@ -29,7 +29,7 @@ abstract class PostCollection {
 class CurrentUserPostCollection(override val path: String) : PostCollection() {
     override fun requiresAuthentication() = true
 
-    override val subdomain : String?
+    override val subdomain: String?
         get() = null
 }
 

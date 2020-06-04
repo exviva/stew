@@ -2,6 +2,8 @@ package net.stew.stew
 
 import android.net.Uri
 import android.os.AsyncTask
+import net.stew.stew.model.Post
+import net.stew.stew.model.PostCollection
 import org.jsoup.Connection
 import org.jsoup.HttpStatusException
 import org.jsoup.Jsoup
@@ -17,7 +19,7 @@ class Api(private val application: Application) {
     private val runningTasks = arrayListOf<Task>()
 
     fun logIn(userName: String, password: String, errorListener: (ConnectionError) -> Unit,
-        listener: (String?, String?, String?) -> Unit) {
+              listener: (String?, String?, String?) -> Unit) {
 
         val loginPageConnection = connect(loginPath)
         executeRequest(loginPageConnection, errorListener) {
@@ -41,7 +43,7 @@ class Api(private val application: Application) {
     }
 
     fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ConnectionError) -> Unit,
-        listener: (Collection<Post>) -> Unit): Task {
+                   listener: (Collection<Post>) -> Unit): Task {
 
         val subdomain = (collection.subdomain ?: "www").replace(":current_user", application.currentSession!!.userName)
         var path = collection.path ?: "/"
@@ -133,7 +135,8 @@ class Api(private val application: Application) {
             val description = it.select(".description").text()
 
             val authorship = it.select(".icon.author")
-            val authorElement = authorship.select("a.url.user").first() ?: authorship.select("a.url").first()
+            val authorElement = authorship.select("a.url.user").first()
+                    ?: authorship.select("a.url").first()
             val authorImageUri = Uri.parse(authorElement.select("img").attr("src"))
             val authorName = authorship.select(".bubble h4 a").text()
             val author = Post.Author(authorName, authorImageUri)
@@ -149,7 +152,7 @@ class Api(private val application: Application) {
 
 }
 
-class Task(private val connection: Connection, private var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit):
+class Task(private val connection: Connection, private var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit) :
         AsyncTask<Void, Int, Pair<ConnectionError?, Document?>>() {
     override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
         var responseStatus: ConnectionError? = null

@@ -1,4 +1,4 @@
-package net.stew.stew
+package net.stew.stew.model
 
 class PostsStore {
 
@@ -9,7 +9,7 @@ class PostsStore {
         postsByCollection[collection]!!.addAll(posts)
     }
 
-    fun restore(collection: PostCollection) : List<Post> {
+    fun restore(collection: PostCollection): List<Post> {
         if (collection !in postsByCollection) {
             postsByCollection[collection] = ArrayList()
         }

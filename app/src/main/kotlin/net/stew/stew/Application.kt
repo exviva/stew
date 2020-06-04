@@ -3,6 +3,8 @@ package net.stew.stew
 import android.content.Context
 import android.content.Intent
 import com.facebook.drawee.backends.pipeline.Fresco
+import net.stew.stew.model.PostsStore
+import net.stew.stew.ui.LoginActivity
 
 class Application : android.app.Application() {
 
@@ -21,8 +23,7 @@ class Application : android.app.Application() {
     fun setCurrentSession(userName: String, userIdCookie: String, sessionIdCookie: String, csrfToken: String) {
         previousUserName = userName
         currentSession = CurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
-        val preferences = getPreferences()
-        preferences.edit().
+        getPreferences().edit().
             putString("userName", userName).
             putString("userIdCookie", userIdCookie).
             putString("sessionIdCookie", sessionIdCookie).
@@ -34,8 +35,7 @@ class Application : android.app.Application() {
         api.clear()
         postsStore.clear()
         currentSession = null
-        val preferences = getPreferences()
-        preferences.edit().
+        getPreferences().edit().
             remove("userIdCookie").
             remove("sessionIdCookie").
             remove("csrfToken").
@@ -56,17 +56,18 @@ class Application : android.app.Application() {
     }
 
     private fun restoreCurrentSession() {
-        val preferences = getPreferences()
-        val userName = preferences.getString("userName", null)
-        val userIdCookie = preferences.getString("userIdCookie", null)
-        val sessionIdCookie = preferences.getString("sessionIdCookie", null)
-        val csrfToken = preferences.getString("csrfToken", null)
+        getPreferences().run {
+            val userName = getString("userName", null)
+            val userIdCookie = getString("userIdCookie", null)
+            val sessionIdCookie = getString("sessionIdCookie", null)
+            val csrfToken = getString("csrfToken", null)
 
-        if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
-            setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
+            if (userName != null && userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
+                setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
+            }
+
+            previousUserName = userName
         }
-
-        previousUserName = userName
     }
 
     private fun getPreferences() = getSharedPreferences("Application", Context.MODE_PRIVATE)

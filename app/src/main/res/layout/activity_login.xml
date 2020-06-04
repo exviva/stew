@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="32dp"
     android:layout_gravity="center"
     android:gravity="center_horizontal"
-    tools:context=".LoginActivity">
+    android:orientation="vertical"
+    android:padding="32dp"
+    tools:context=".ui.LoginActivity">
 
     <ImageView
         android:layout_width="240dp"
         android:layout_height="240dp"
-        android:src="@drawable/logo"
         android:padding="16dp"
+        android:src="@drawable/logo"
         tools:ignore="ContentDescription" />
 
     <LinearLayout
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center_horizontal"
+        android:orientation="horizontal">
 
         <EditText
             android:id="@+id/userNameEditText"
-            android:inputType="textNoSuggestions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:hint="@string/userNameHint"
-            android:textColorHint="@color/light_gray"
+            android:autofillHints="username"
             android:gravity="right"
-            tools:ignore="RtlHardcoded"
-            android:autofillHints="username" />
+            android:hint="@string/userNameHint"
+            android:inputType="textNoSuggestions"
+            android:textColorHint="@color/light_gray"
+            tools:ignore="RtlHardcoded" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/domain_suffix"
-            android:textColor="@color/dark_gray"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/dark_gray" />
 
     </LinearLayout>
 
@@ -47,19 +47,19 @@
         android:id="@+id/passwordEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="textPassword"
+        android:autofillHints="password"
         android:hint="@string/passwordHint"
-        android:textColorHint="@color/light_gray"
-        android:autofillHints="password" />
+        android:inputType="textPassword"
+        android:textColorHint="@color/light_gray" />
 
     <Button
         android:id="@+id/logInButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/log_in"
-        android:textSize="18sp"
-        android:padding="16dp"
         android:layout_marginTop="8dp"
-        android:enabled="false" />
+        android:enabled="false"
+        android:padding="16dp"
+        android:text="@string/log_in"
+        android:textSize="18sp" />
 
 </LinearLayout>

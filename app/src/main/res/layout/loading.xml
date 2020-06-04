@@ -11,22 +11,22 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/messageTextView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="24dp"
-        android:text="@string/loading"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="italic"
-        android:gravity="center_horizontal" />
+        <TextView
+            android:id="@+id/messageTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:padding="24dp"
+            android:text="@string/loading"
+            android:textAlignment="center"
+            android:textSize="24sp"
+            android:textStyle="italic" />
 
-    <Button
-        android:id="@+id/retryButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/retry" />
+        <Button
+            android:id="@+id/retryButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/retry" />
 
     </LinearLayout>
 

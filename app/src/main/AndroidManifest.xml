@@ -6,33 +6,31 @@
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
-        android:allowBackup="true"
         android:name=".Application"
-        android:label="@string/app_name"
+        android:allowBackup="true"
+        android:fullBackupContent="true"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/AppTheme"
-        android:supportsRtl="true"
-        tools:ignore="GoogleAppIndexingWarning"
+        android:label="@string/app_name"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:fullBackupContent="true">
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
-        <activity android:name=".LoginActivity"
+        <activity
+            android:name=".ui.LoginActivity"
             android:label="@string/log_in"
             android:screenOrientation="portrait" />
 
-        <activity android:name=".FullscreenImageActivity"
+        <activity
+            android:name=".ui.FullscreenImageActivity"
             android:theme="@style/AppTheme.Fullscreen" />
-
-        <activity android:name=".AboutActivity"
-            android:label="@string/about"
-            android:screenOrientation="portrait" />
 
     </application>
 
