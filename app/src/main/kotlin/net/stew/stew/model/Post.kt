@@ -3,7 +3,7 @@ package net.stew.stew.model
 import android.net.Uri
 
 class Post(val id: Int,
-           content: Content,
+           val content: Content,
            val description: String,
            val author: Author,
            val group: Group?,
@@ -12,7 +12,7 @@ class Post(val id: Int,
     val type = content.type
     val uri = content.uri
 
-    class Content(url: String, val type: Type) {
+    class Content(url: String, val type: Type, val text: String = "") {
         val uri = Uri.parse(url)
 
         enum class Type {

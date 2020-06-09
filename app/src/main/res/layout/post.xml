@@ -107,14 +107,12 @@
                 </FrameLayout>
 
                 <TextView
-                    android:id="@+id/uriTextView"
+                    android:id="@+id/otherTextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:textSize="24sp"
+                    android:textSize="16sp"
                     android:gravity="center"
-                    android:padding="16dp"
-                    android:textStyle="italic"
-                    android:text="@string/other_content_type" />
+                    android:padding="16dp" />
 
             </FrameLayout>
 

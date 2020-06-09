@@ -126,11 +126,18 @@ class Api(private val application: Application) {
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
             val content = when {
                 it.hasClass("post_image") ->
-                    Post.Content(it.select(".content img").attr("src"), Post.Content.Type.Image)
+                    Post.Content(
+                            it.select(".content img").attr("src"),
+                            Post.Content.Type.Image)
                 it.hasClass("post_video") && it.select(".content video").isNotEmpty() ->
-                    Post.Content(it.select(".content video").attr("src"), Post.Content.Type.Video)
+                    Post.Content(
+                            it.select(".content video").attr("src"),
+                            Post.Content.Type.Video)
                 else ->
-                    Post.Content(it.select(".actionbar .permalink a").attr("href"), Post.Content.Type.Other)
+                    Post.Content(
+                            it.select(".actionbar .permalink a").attr("href"),
+                            Post.Content.Type.Other,
+                            it.select(".content").text())
             }
             val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
             val repostState = when {

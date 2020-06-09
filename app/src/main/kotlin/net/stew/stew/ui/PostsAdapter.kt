@@ -27,7 +27,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         val postVideoContainer: View = itemView.findViewById(R.id.postVideoContainer)
         val postVideoView = itemView.findViewById(R.id.postVideoView) as VideoView
         val playVideoButton = itemView.findViewById(R.id.playVideoButton) as ImageButton
-        val uriTextView = itemView.findViewById(R.id.uriTextView) as TextView
+        val otherTextView = itemView.findViewById(R.id.otherTextView) as TextView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
         val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
         val authorshipLayout: View = itemView.findViewById(R.id.authorshipLayout)
@@ -147,9 +147,10 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             }
         }
 
-        postViewHolder.uriTextView.apply {
+        postViewHolder.otherTextView.apply {
             if (post.type == Post.Content.Type.Other) {
                 visibility = View.VISIBLE
+                text = post.content.text
                 setOnClickListener {
                     context.startActivity(Intent(Intent.ACTION_VIEW, post.uri))
                 }
