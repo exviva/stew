@@ -4,13 +4,14 @@ import android.net.Uri
 
 class Post(val id: Int,
            val content: Content,
+           val permalink: Uri,
            val description: String,
            val author: Author,
            val group: Group?,
            var repostState: RepostState) {
 
     val type = content.type
-    val uri = content.uri
+    val contentUri = content.uri
 
     class Content(url: String, val type: Type, val text: String = "") {
         val uri = Uri.parse(url)

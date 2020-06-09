@@ -103,16 +103,16 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             if (post.type == Post.Content.Type.Image) {
                 visibility = View.VISIBLE
 
-                if (tag != post.uri) {
-                    tag = post.uri
+                if (tag != post.contentUri) {
+                    tag = post.contentUri
                     controller = Fresco.newDraweeControllerBuilder()
-                            .setUri(post.uri)
+                            .setUri(post.contentUri)
                             .setAutoPlayAnimations(true)
                             .setOldController(postViewHolder.postImageView.controller)
                             .setTapToRetryEnabled(true)
                             .build()
                     setOnClickListener {
-                        FullscreenImageActivity.start(activity, post.uri, it)
+                        FullscreenImageActivity.start(activity, post.contentUri, it)
                     }
                 }
             } else {
@@ -137,7 +137,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
                     }
 
                     playButton.visibility = View.VISIBLE
-                    setVideoURI(post.uri)
+                    setVideoURI(post.contentUri)
                     setOnClickListener(listener)
                     playButton.setOnClickListener(listener)
                     setOnCompletionListener { playButton.visibility = View.VISIBLE }
@@ -152,7 +152,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
                 visibility = View.VISIBLE
                 text = post.content.text
                 setOnClickListener {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, post.uri))
+                    context.startActivity(Intent(Intent.ACTION_VIEW, post.contentUri))
                 }
             } else {
                 visibility = View.GONE
@@ -190,10 +190,22 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         }
         postViewHolder.shareButton.apply {
             setOnClickListener {
-                val sendIntent = Intent(Intent.ACTION_SEND)
-                sendIntent.type = "text/plain"
-                sendIntent.putExtra(Intent.EXTRA_TEXT, post.uri.toString())
-                activity.startActivity(Intent.createChooser(sendIntent, ""))
+                val sendIntent = Intent(Intent.ACTION_SEND).apply {
+                    if (post.type == Post.Content.Type.Image) {
+                        type = "image/*"
+                        putExtra(Intent.EXTRA_STREAM, post.contentUri)
+                    } else {
+                        type = "text/plain"
+                        putExtra(Intent.EXTRA_TEXT, post.contentUri.toString())
+                    }
+                }
+
+                activity.startActivity(Intent.createChooser(sendIntent, "foobar"))
+            }
+
+            setOnLongClickListener {
+                activity.startActivity(Intent(Intent.ACTION_VIEW, post.permalink))
+                true
             }
         }
 

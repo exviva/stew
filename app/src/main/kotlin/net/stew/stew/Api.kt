@@ -124,6 +124,7 @@ class Api(private val application: Application) {
         return document.select(":not(.gallery-images) > .post").map {
             val blockRepost = it.hasClass("hide-repost")
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
+            val permalink = it.select(".actionbar .permalink a").attr("href")
             val content = when {
                 it.hasClass("post_image") ->
                     Post.Content(
@@ -135,7 +136,7 @@ class Api(private val application: Application) {
                             Post.Content.Type.Video)
                 else ->
                     Post.Content(
-                            it.select(".actionbar .permalink a").attr("href"),
+                            permalink,
                             Post.Content.Type.Other,
                             it.select(".content").text())
             }
@@ -160,7 +161,7 @@ class Api(private val application: Application) {
             val groupName = authorship.select(".bubble .group a").text()
             val group = if (groupName.isNotBlank() && groupImageUri != null) Post.Group(groupName, groupImageUri) else null
 
-            Post(id, content, description, author, group, repostState)
+            Post(id, content, Uri.parse(permalink), description, author, group, repostState)
         }
     }
 
