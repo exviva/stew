@@ -24,4 +24,5 @@
     <string name="userNameHint">username</string>
     <string name="version">Version %1$s</string>
     <string name="retry">Retry</string>
+    <string name="other_content_type">Unsupported content type, tap to view in browser</string>
 </resources>

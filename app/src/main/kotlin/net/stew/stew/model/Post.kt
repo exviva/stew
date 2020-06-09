@@ -3,11 +3,24 @@ package net.stew.stew.model
 import android.net.Uri
 
 class Post(val id: Int,
-           val uri: Uri,
+           content: Content,
            val description: String,
            val author: Author,
            val group: Group?,
            var repostState: RepostState) {
+
+    val type = content.type
+    val uri = content.uri
+
+    class Content(url: String, val type: Type) {
+        val uri = Uri.parse(url)
+
+        enum class Type {
+            Image,
+            Video,
+            Other
+        }
+    }
 
     enum class RepostState {
         NOT_REPOSTED,

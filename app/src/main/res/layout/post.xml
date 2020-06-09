@@ -75,12 +75,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.facebook.drawee.view.SimpleDraweeView
-                android:id="@+id/postImageView"
+            <FrameLayout
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                fresco:failureImage="@android:drawable/ic_menu_report_image"
-                fresco:retryImage="@android:drawable/ic_menu_rotate" />
+                android:layout_height="300dp">
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/postImageView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    fresco:failureImage="@android:drawable/ic_menu_report_image"
+                    fresco:retryImage="@android:drawable/ic_menu_rotate" />
+
+                <FrameLayout
+                    android:id="@+id/postVideoContainer"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <VideoView
+                        android:id="@+id/postVideoView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+
+                    <ImageButton
+                        android:id="@+id/playVideoButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:background="@android:color/transparent"
+                        android:src="@android:drawable/ic_media_play" />
+
+                </FrameLayout>
+
+                <TextView
+                    android:id="@+id/uriTextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="24sp"
+                    android:gravity="center"
+                    android:padding="16dp"
+                    android:textStyle="italic"
+                    android:text="@string/other_content_type" />
+
+            </FrameLayout>
 
             <ImageButton
                 android:id="@+id/shareButton"

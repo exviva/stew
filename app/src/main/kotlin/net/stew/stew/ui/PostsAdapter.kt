@@ -4,10 +4,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ImageButton
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.backends.pipeline.Fresco
@@ -27,6 +24,10 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
+        val postVideoContainer: View = itemView.findViewById(R.id.postVideoContainer)
+        val postVideoView = itemView.findViewById(R.id.postVideoView) as VideoView
+        val playVideoButton = itemView.findViewById(R.id.playVideoButton) as ImageButton
+        val uriTextView = itemView.findViewById(R.id.uriTextView) as TextView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
         val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
         val authorshipLayout: View = itemView.findViewById(R.id.authorshipLayout)
@@ -99,17 +100,61 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         val postViewHolder = viewHolder as PostViewHolder
 
         postViewHolder.postImageView.apply {
-            if (tag != post.uri) {
-                tag = post.uri
-                controller = Fresco.newDraweeControllerBuilder().
-                        setUri(post.uri).
-                        setAutoPlayAnimations(true).
-                        setOldController(postViewHolder.postImageView.controller).
-                        setTapToRetryEnabled(true).
-                        build()
-                setOnClickListener {
-                    FullscreenImageActivity.start(activity, post.uri, it)
+            if (post.type == Post.Content.Type.Image) {
+                visibility = View.VISIBLE
+
+                if (tag != post.uri) {
+                    tag = post.uri
+                    controller = Fresco.newDraweeControllerBuilder()
+                            .setUri(post.uri)
+                            .setAutoPlayAnimations(true)
+                            .setOldController(postViewHolder.postImageView.controller)
+                            .setTapToRetryEnabled(true)
+                            .build()
+                    setOnClickListener {
+                        FullscreenImageActivity.start(activity, post.uri, it)
+                    }
                 }
+            } else {
+                visibility = View.GONE
+            }
+        }
+
+        postViewHolder.postVideoContainer.apply {
+            if (post.type == Post.Content.Type.Video) {
+                visibility = View.VISIBLE
+
+                postViewHolder.postVideoView.apply {
+                    val playButton = postViewHolder.playVideoButton
+                    val listener: (v: View) -> Unit = {
+                        if (isPlaying) {
+                            pause()
+                            playButton.visibility = View.VISIBLE
+                        } else {
+                            start()
+                            playButton.visibility = View.GONE
+                        }
+                    }
+
+                    playButton.visibility = View.VISIBLE
+                    setVideoURI(post.uri)
+                    setOnClickListener(listener)
+                    playButton.setOnClickListener(listener)
+                    setOnCompletionListener { playButton.visibility = View.VISIBLE }
+                }
+            } else {
+                visibility = View.GONE
+            }
+        }
+
+        postViewHolder.uriTextView.apply {
+            if (post.type == Post.Content.Type.Other) {
+                visibility = View.VISIBLE
+                setOnClickListener {
+                    context.startActivity(Intent(Intent.ACTION_VIEW, post.uri))
+                }
+            } else {
+                visibility = View.GONE
             }
         }
 

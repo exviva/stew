@@ -121,10 +121,17 @@ class Api(private val application: Application) {
     }
 
     private fun parsePosts(document: Document): Collection<Post> {
-        return document.select(":not(.gallery-images) > .post_image").map {
+        return document.select(":not(.gallery-images) > .post").map {
             val blockRepost = it.hasClass("hide-repost")
             val id = it.attr("id").replace(Regex("[^0-9]"), "").toInt()
-            val src = it.select(".imagecontainer img").attr("src")
+            val content = when {
+                it.hasClass("post_image") ->
+                    Post.Content(it.select(".content img").attr("src"), Post.Content.Type.Image)
+                it.hasClass("post_video") && it.select(".content video").isNotEmpty() ->
+                    Post.Content(it.select(".content video").attr("src"), Post.Content.Type.Video)
+                else ->
+                    Post.Content(it.select(".actionbar .permalink a").attr("href"), Post.Content.Type.Other)
+            }
             val isReposted = it.select(".reposted_by .user${application.currentSession!!.userId}").isNotEmpty()
             val repostState = when {
                 blockRepost -> Post.RepostState.BLOCKED
@@ -146,7 +153,7 @@ class Api(private val application: Application) {
             val groupName = authorship.select(".bubble .group a").text()
             val group = if (groupName.isNotBlank() && groupImageUri != null) Post.Group(groupName, groupImageUri) else null
 
-            Post(id, Uri.parse(src), description, author, group, repostState)
+            Post(id, content, description, author, group, repostState)
         }
     }
 
