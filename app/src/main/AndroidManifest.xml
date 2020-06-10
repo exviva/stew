@@ -30,7 +30,8 @@
 
         <activity
             android:name=".ui.FullscreenImageActivity"
-            android:theme="@style/AppTheme.Fullscreen" />
+            android:theme="@style/AppTheme.Fullscreen"
+            android:configChanges="orientation|screenSize" />
 
     </application>
 
