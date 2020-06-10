@@ -191,16 +191,11 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         postViewHolder.shareButton.apply {
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
-                    if (post.type == Post.Content.Type.Image) {
-                        type = "image/*"
-                        putExtra(Intent.EXTRA_STREAM, post.contentUri)
-                    } else {
-                        type = "text/plain"
-                        putExtra(Intent.EXTRA_TEXT, post.contentUri.toString())
-                    }
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, post.contentUri.toString())
                 }
 
-                activity.startActivity(Intent.createChooser(sendIntent, "foobar"))
+                activity.startActivity(Intent.createChooser(sendIntent, ""))
             }
 
             setOnLongClickListener {
