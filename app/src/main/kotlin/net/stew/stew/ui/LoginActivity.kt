@@ -6,9 +6,13 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import kotlinx.android.synthetic.main.activity_login.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import net.stew.stew.Api
 import net.stew.stew.Application
-import net.stew.stew.ConnectionError
 import net.stew.stew.R
 
 class LoginActivity : AppCompatActivity() {
@@ -32,19 +36,25 @@ class LoginActivity : AppCompatActivity() {
         val userName = userNameEditText.text.toString()
         val password = passwordEditText.text.toString()
         val application = application as Application
-        val errorListener: (ConnectionError) -> Unit = {
-            handleResponseError(getString(R.string.network_error, it.details))
-        }
+
         logInButton.isEnabled = false
         logInButton.setText(R.string.logging_in)
-        application.api.logIn(userName, password, errorListener) { userIdCookie, sessionIdCookie, csrfToken ->
-            if (userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
-                application.setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
-                val intent = Intent(this, MainActivity::class.java)
-                startActivity(intent)
-                finish()
-            } else {
-                handleResponseError(getString(R.string.invalid_credentials))
+
+        lifecycleScope.launch {
+            when (val res = application.api.logIn(userName, password)) {
+                is Api.Response.Success -> {
+                    val (userIdCookie, sessionIdCookie, csrfToken) = res.data
+
+                    if (userIdCookie != null && sessionIdCookie != null && csrfToken != null) {
+                        application.setCurrentSession(userName, userIdCookie, sessionIdCookie, csrfToken)
+                        val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                        startActivity(intent)
+                        finish()
+                    } else {
+                        handleResponseError(getString(R.string.invalid_credentials))
+                    }
+                }
+                is Api.Response.Error -> handleResponseError(getString(R.string.network_error, res.details))
             }
         }
     }

@@ -6,20 +6,24 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import net.stew.stew.Api
 import net.stew.stew.Application
-import net.stew.stew.ConnectionError
 import net.stew.stew.R
 import net.stew.stew.model.Post
 import net.stew.stew.model.PostCollection
-import net.stew.stew.model.PostsProvider
 import net.stew.stew.model.SubdomainPostCollection
 
 class PostsAdapter(private val activity: MainActivity, private val collection: PostCollection) :
-        RecyclerView.Adapter<RecyclerView.ViewHolder>(), PostsProvider.Listener {
+        RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
@@ -48,17 +52,11 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
 
     }
 
-    enum class LoadMode {
-        REPLACE,
-        APPEND
-    }
-
     private val application = activity.application as Application
     private var posts = application.postsStore.restore(collection)
-    private val postsProvider = PostsProvider(application, collection, this)
-    private var loadMode = LoadMode.REPLACE
     private var retriesLeft: Int? = null
-    private var lastPostsLoadConnectionError: ConnectionError? = null
+    private var lastPostsLoadError: Api.Response.Error? = null
+    private var isLoading = false
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         if (viewType == 1) {
@@ -86,12 +84,12 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             val loadingViewHolder = viewHolder as LoadingViewHolder
 
             loadingViewHolder.messageTextView.apply {
-                text = lastPostsLoadConnectionError?.details
+                text = lastPostsLoadError?.details
                         ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
                                 ?: activity.getString(R.string.loading)
             }
 
-            loadingViewHolder.retryButton.visibility = if (lastPostsLoadConnectionError == null) View.GONE else View.VISIBLE
+            loadingViewHolder.retryButton.visibility = if (lastPostsLoadError == null) View.GONE else View.VISIBLE
 
             return
         }
@@ -169,16 +167,26 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
 
             setOnClickListener {
-                val errorListener: (ConnectionError) -> Unit = { err ->
-                    if (err.isForbidden()) {
-                        handleForbidden()
-                    } else {
-                        notifyDataSetChanged()
-                        showErrorToast(err)
+                activity.lifecycleScope.launch {
+                    post.repostState = Post.RepostState.REPOSTING
+                    notifyDataSetChanged()
+
+                    when (val res = application.api.repost(post)) {
+                        is Api.Response.Success -> {
+                            post.repostState = Post.RepostState.REPOSTED
+                        }
+                        is Api.Response.Error -> {
+                            post.repostState = Post.RepostState.NOT_REPOSTED
+
+                            if (res.isForbidden()) {
+                                handleForbidden()
+                            } else {
+                                showErrorToast(res)
+                            }
+                        }
                     }
+                    notifyDataSetChanged()
                 }
-                application.api.repost(post, errorListener, this@PostsAdapter::notifyDataSetChanged)
-                notifyDataSetChanged()
             }
 
             val stringId = when (post.repostState) {
@@ -236,45 +244,50 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
 
     override fun getItemViewType(position: Int) = if (shouldShowMessageCard() && position == posts.size) 1 else 0
 
-    override fun onPostsLoaded(posts: Collection<Post>) {
-        this.posts = if (loadMode == LoadMode.REPLACE) posts.toList() else this.posts + posts
-
-        application.postsStore.store(collection, this.posts)
-        notifyDataSetChanged()
-    }
-
-    override fun onPostsLoadError(connectionError: ConnectionError) {
-        lastPostsLoadConnectionError = connectionError
-
-        if (connectionError.isForbidden()) {
-            handleForbidden()
-        }
-
-        notifyDataSetChanged()
-    }
-
-    override fun onPostsLoadRetrying(retriesLeft: Int) {
-        this.retriesLeft = retriesLeft
-        notifyDataSetChanged()
-    }
-
     fun maybeLoadMore(visibleItemPosition: Int) {
         if (posts.size - visibleItemPosition in 1..9) {
-            loadMode = LoadMode.APPEND
             load()
         }
     }
 
     fun load() {
         retriesLeft = null
-        lastPostsLoadConnectionError = null
-        postsProvider.loadPosts(if (loadMode == LoadMode.REPLACE) null else posts.lastOrNull())
-        notifyDataSetChanged()
+        lastPostsLoadError = null
+
+        activity.lifecycleScope.launch {
+            val retry = Api.Retry(2) {
+                retriesLeft = it
+                notifyDataSetChanged()
+            }
+
+            isLoading = true
+            notifyDataSetChanged()
+
+            val res = application.api.fetchPosts(collection, posts.lastOrNull(), retry)
+            isLoading = false
+
+            when (res) {
+                is Api.Response.Success -> {
+                    posts = posts + res.data
+
+                    application.postsStore.store(collection, posts)
+                }
+                is Api.Response.Error -> {
+                    lastPostsLoadError = res
+
+                    if (res.isForbidden()) {
+                        handleForbidden()
+                    }
+                }
+            }
+
+            notifyDataSetChanged()
+        }
     }
 
-    private fun shouldShowMessageCard() = postsProvider.isLoading() || lastPostsLoadConnectionError != null
+    private fun shouldShowMessageCard() = isLoading || lastPostsLoadError != null
 
-    private fun showErrorToast(error: ConnectionError) {
+    private fun showErrorToast(error: Api.Response.Error) {
         val msg = activity.getString(R.string.network_error, error.details)
         Toast.makeText(activity, msg, Toast.LENGTH_SHORT).show()
     }

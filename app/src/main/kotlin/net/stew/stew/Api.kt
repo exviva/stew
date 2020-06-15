@@ -1,7 +1,10 @@
 package net.stew.stew
 
 import android.net.Uri
-import android.os.AsyncTask
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.withContext
 import net.stew.stew.model.Post
 import net.stew.stew.model.PostCollection
 import org.jsoup.Connection
@@ -16,35 +19,54 @@ class Api(private val application: Application) {
         const val loginPath = "/login"
     }
 
-    private val runningTasks = arrayListOf<Task>()
+    private var scope = CoroutineScope(Dispatchers.IO)
 
-    fun logIn(userName: String, password: String, errorListener: (ConnectionError) -> Unit,
-              listener: (String?, String?, String?) -> Unit) {
+    data class Retry(val count: Int, val callback: (Int) -> Unit)
+    sealed class Response<out T> {
+        data class Success<out T>(val data: T) : Response<T>()
+        data class Error(private val error: Exception?, private val statusCode: Int?) : Response<Nothing>() {
+            fun isForbidden() = statusCode?.let { it == 403 } ?: false
+            val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
+        }
+    }
+    data class LoginResponse(val userIdCookie: String?, val sessionIdCookie: String?, val csrfToken: String?)
 
-        val loginPageConnection = connect(loginPath)
-        executeRequest(loginPageConnection, errorListener) {
+    suspend fun logIn(userName: String, password: String): Response<LoginResponse> {
+        val loginPageConnection = connect(loginPath, requireAuthentication = false)
+        val res: Response<Pair<String?, String?>> = executeRequest(loginPageConnection) {
             val sessionId = loginPageConnection.response().cookie("soup_session_id")
             val authenticityToken = it.select("input[name=authenticity_token]").attr("value")
 
-            val connection = connect(loginPath).
-                method(Connection.Method.POST).
-                cookie("soup_session_id", sessionId).
-                data("login", userName).
-                data("password", password).
-                data("authenticity_token", authenticityToken)
+            Pair(sessionId, authenticityToken)
+        }
 
-            executeRequest(connection, errorListener) { doc ->
-                val userIdCookie = connection.response().cookie("soup_user_id")
-                val sessionIdCookie = connection.response().cookie("soup_session_id")
-                val csrfToken = doc.select("meta[name=csrf-token]").attr("content")
-                listener(userIdCookie, sessionIdCookie, csrfToken)
+        return when (res) {
+            is Response.Success -> {
+                val (sessionId, authenticityToken) = res.data
+
+                if (sessionId == null || authenticityToken == null) {
+                    Response.Error(Exception("Missing session_id or authenticity_token"), 400)
+                } else {
+                    val connection = connect(loginPath)
+                            .method(Connection.Method.POST)
+                            .cookie("soup_session_id", sessionId)
+                            .data("login", userName)
+                            .data("password", password)
+                            .data("authenticity_token", authenticityToken)
+
+                    executeRequest(connection) { doc ->
+                        val userIdCookie = connection.response().cookie("soup_user_id")
+                        val sessionIdCookie = connection.response().cookie("soup_session_id")
+                        val csrfToken = doc.select("meta[name=csrf-token]").attr("content")
+                        LoginResponse(userIdCookie, sessionIdCookie, csrfToken)
+                    }
+                }
             }
+            is Response.Error -> res
         }
     }
 
-    fun fetchPosts(collection: PostCollection, lastPost: Post?, errorListener: (ConnectionError) -> Unit,
-                   listener: (Collection<Post>) -> Unit): Task {
-
+    suspend fun fetchPosts(collection: PostCollection, lastPost: Post?, retry: Retry): Response<Collection<Post>> {
         val subdomain = (collection.subdomain ?: "www").replace(":current_user", application.currentSession!!.userName)
         var path = collection.path ?: "/"
 
@@ -58,30 +80,20 @@ class Api(private val application: Application) {
             connection.data("since", lastPost.id.toString())
         }
 
-        return executeRequest(connection, errorListener, retries = 2) {
-            listener(parsePosts(it))
-        }
+        return executeRequest(connection, retry, this::parsePosts)
     }
 
-    fun repost(post: Post, errorListener: (ConnectionError) -> Unit, listener: () -> Unit) {
+    suspend fun repost(post: Post): Response<Unit> {
         val connection = connect("/remote/repost").
             method(Connection.Method.POST).
             data("parent_id", post.id.toString())
-        val wrappingErrorListener: (ConnectionError) -> Unit = {
-            post.repostState = Post.RepostState.NOT_REPOSTED
-            errorListener(it)
-        }
 
-        post.repostState = Post.RepostState.REPOSTING
-        executeRequest(connection, wrappingErrorListener) {
-            post.repostState = Post.RepostState.REPOSTED
-            listener()
-        }
+        return executeRequest(connection) {}
     }
 
     fun clear() {
-        runningTasks.forEach { it.cancel(true) }
-        runningTasks.clear()
+        scope.cancel("Clear")
+        scope = CoroutineScope(Dispatchers.IO)
     }
 
     private fun connect(path: String, subdomain: String? = null, requireAuthentication: Boolean = true): Connection {
@@ -97,27 +109,32 @@ class Api(private val application: Application) {
         return connection
     }
 
-    private fun executeRequest(connection: Connection, errorListener: (ConnectionError) -> Unit,
-                               retries: Int = 0, listener: (Document) -> Unit): Task {
-        val task = Task(connection, retries) { task, connectionError, document ->
-            if (connectionError?.retriesLeft != null) {
-                errorListener(connectionError)
-                return@Task
-            }
+    private suspend fun <T> executeRequest(connection: Connection,
+                                           retry: Retry? = null,
+                                           callback: (Document) -> T): Response<T> {
+        for (r in (retry?.count ?: 0) downTo 0) {
+            try {
+                val originalUrl = connection.request().url()
+                val response = withContext(scope.coroutineContext) { connection.execute() }
 
-            runningTasks.remove(task)
+                return if (originalUrl.path != loginPath && response.url().path == loginPath) {
+                    Response.Error(null, 403)
+                } else {
+                    val document = withContext(scope.coroutineContext) { response.parse() }
+                    Response.Success(callback(document))
+                }
+            } catch (e: IOException) {
+                val statusCode = (e as? HttpStatusException)?.statusCode
 
-            if (connectionError != null) {
-                errorListener(connectionError)
-            } else {
-                listener(document!!)
+                if (r > 0 && statusCode?.let { it >= 500 } == true) {
+                    retry?.callback?.invoke(r)
+                } else {
+                    return Response.Error(e, statusCode)
+                }
             }
         }
 
-        task.execute()
-        runningTasks.add(task)
-
-        return task
+        throw IllegalStateException("Unreachable code")
     }
 
     private fun parsePosts(document: Document): Collection<Post> {
@@ -164,57 +181,5 @@ class Api(private val application: Application) {
             Post(id, content, Uri.parse(permalink), description, author, group, repostState)
         }
     }
-
-}
-
-class Task(private val connection: Connection, private var retries: Int, val listener: (Task, ConnectionError?, Document?) -> Unit) :
-        AsyncTask<Void, Int, Pair<ConnectionError?, Document?>>() {
-    override fun doInBackground(vararg params: Void?): Pair<ConnectionError?, Document?> {
-        var responseStatus: ConnectionError? = null
-        var document: Document? = null
-
-        while (true) {
-            try {
-                val originalUrl = connection.request().url()
-                val response = connection.execute()
-
-                if (originalUrl.path != Api.loginPath && response.url().path == Api.loginPath) {
-                    responseStatus = ConnectionError(null, 403)
-                } else {
-                    document = response.parse()
-                }
-            } catch (e: IOException) {
-                val statusCode = (e as? HttpStatusException)?.statusCode
-
-                if (retries > 0 && statusCode?.let { it >= 500 } == true) {
-                    retries--
-                    publishProgress(retries)
-                    continue
-                }
-
-                responseStatus = ConnectionError(e, statusCode)
-            }
-
-            return Pair(responseStatus, document)
-        }
-    }
-
-    override fun onProgressUpdate(vararg values: Int?) {
-        listener(this, ConnectionError(null, null, values[0]), null)
-    }
-
-    override fun onPostExecute(pair: Pair<ConnectionError?, Document?>) {
-        val responseStatus = pair.first
-        val document = pair.second
-
-        listener(this, responseStatus, document)
-    }
-}
-
-open class ConnectionError(private val error: Exception?, private val statusCode: Int?, val retriesLeft: Int? = null) {
-
-    val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
-
-    fun isForbidden() = statusCode == 403
 
 }
