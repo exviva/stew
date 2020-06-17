@@ -16,7 +16,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
 
-        <activity android:name=".ui.MainActivity" android:configChanges="orientation|screenSize">
+        <activity
+            android:name=".ui.MainActivity"
+            android:configChanges="orientation|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -30,8 +32,8 @@
 
         <activity
             android:name=".ui.FullscreenImageActivity"
-            android:theme="@style/AppTheme.Fullscreen"
-            android:configChanges="orientation|screenSize" />
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/AppTheme.Fullscreen" />
 
     </application>
 

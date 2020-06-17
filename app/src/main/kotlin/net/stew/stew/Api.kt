@@ -29,6 +29,7 @@ class Api(private val application: Application) {
             val details by lazy { listOfNotNull(statusCode?.toString(), error?.message).joinToString(" - ") }
         }
     }
+
     data class LoginResponse(val userIdCookie: String?, val sessionIdCookie: String?, val csrfToken: String?)
 
     suspend fun logIn(userName: String, password: String): Response<LoginResponse> {
