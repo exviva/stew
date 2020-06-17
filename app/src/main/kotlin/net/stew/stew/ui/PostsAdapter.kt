@@ -22,6 +22,10 @@ import net.stew.stew.model.SubdomainPostCollection
 class PostsAdapter(private val activity: MainActivity, private val collection: PostCollection) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
+    companion object {
+        val ViewTypeLoading = Post.Content.Type.values().size
+    }
+
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
@@ -54,7 +58,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     private var isLoading = false
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == Post.Content.Type.values().size) {
+        if (viewType == ViewTypeLoading) {
             val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.loading, viewGroup, false)
 
             return LoadingViewHolder(view).apply {
@@ -65,88 +69,75 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
 
         return PostViewHolder(view).apply {
-            if (viewType == Post.Content.Type.values().indexOf(Post.Content.Type.Image)) {
-                val drawable = ProgressBarDrawable().apply {
-                    color = ContextCompat.getColor(activity, R.color.accent)
-                    barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
+            when (viewType) {
+                Post.Content.Type.Image.ordinal -> postImageView.apply {
+                    visibility = View.VISIBLE
+                    hierarchy.setProgressBarImage(ProgressBarDrawable().apply {
+                        color = ContextCompat.getColor(activity, R.color.accent)
+                        barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
+                    })
                 }
-
-                postImageView.hierarchy.setProgressBarImage(drawable)
+                Post.Content.Type.Video.ordinal -> postVideoView.visibility = View.VISIBLE
+                Post.Content.Type.Other.ordinal -> otherTextView.visibility = View.VISIBLE
             }
         }
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        if (position == posts.size && shouldShowMessageCard()) {
-            val loadingViewHolder = viewHolder as LoadingViewHolder
+        if (position == posts.size && shouldShowLoadingCard()) {
+            onBindLoadingViewHolder(viewHolder as LoadingViewHolder)
+        } else {
+            onBindPostViewHolder(posts[position], viewHolder as PostViewHolder)
+        }
+    }
 
-            loadingViewHolder.messageTextView.apply {
-                text = lastPostsLoadError?.details
-                        ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
-                                ?: activity.getString(R.string.loading)
-            }
-
-            loadingViewHolder.retryButton.visibility = if (lastPostsLoadError == null) View.GONE else View.VISIBLE
-
-            return
+    private fun onBindLoadingViewHolder(viewHolder: LoadingViewHolder) = viewHolder.apply {
+        messageTextView.apply {
+            text = lastPostsLoadError?.details
+                    ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
+                            ?: activity.getString(R.string.loading)
         }
 
-        val post = posts[position]
-        val postViewHolder = viewHolder as PostViewHolder
+        retryButton.visibility = if (lastPostsLoadError == null) View.GONE else View.VISIBLE
+    }
 
-        postViewHolder.postImageView.apply {
-            if (post.type == Post.Content.Type.Image) {
-                visibility = View.VISIBLE
-
+    private fun onBindPostViewHolder(post: Post, viewHolder: PostViewHolder) = viewHolder.apply {
+        when (post.content.type) {
+            Post.Content.Type.Image -> postImageView.apply {
                 if (tag != post.contentUri) {
                     tag = post.contentUri
                     controller = Fresco.newDraweeControllerBuilder()
                             .setUri(post.contentUri)
                             .setAutoPlayAnimations(true)
-                            .setOldController(postViewHolder.postImageView.controller)
+                            .setOldController(controller)
                             .setTapToRetryEnabled(true)
                             .build()
                     setOnClickListener {
                         FullscreenImageActivity.start(activity, post.contentUri, it)
                     }
                 }
-            } else {
-                visibility = View.GONE
             }
-        }
-
-        postViewHolder.postVideoView.apply {
-            if (post.type == Post.Content.Type.Video) {
-                visibility = View.VISIBLE
-
+            Post.Content.Type.Video -> postVideoView.apply {
                 if (tag != post.contentUri) {
-                    setVideoURI(post.contentUri)
                     tag = post.contentUri
+                    setVideoURI(post.contentUri)
                     setMediaController(MediaController(activity))
                 }
-            } else {
-                visibility = View.GONE
             }
-        }
-
-        postViewHolder.otherTextView.apply {
-            if (post.type == Post.Content.Type.Other) {
-                visibility = View.VISIBLE
+            Post.Content.Type.Other -> otherTextView.apply {
                 text = post.content.text
                 setOnClickListener {
-                    context.startActivity(Intent(Intent.ACTION_VIEW, post.contentUri))
+                    activity.startActivity(Intent(Intent.ACTION_VIEW, post.contentUri))
                 }
-            } else {
-                visibility = View.GONE
             }
         }
 
-        postViewHolder.description.apply {
+        description.apply {
             visibility = if (post.description.isBlank()) View.GONE else View.VISIBLE
             text = post.description
         }
 
-        postViewHolder.repostButton.apply {
+        repostButton.apply {
             visibility = if (collection != PostCollection.Me) View.VISIBLE else View.GONE
             isEnabled = post.repostState == Post.RepostState.NOT_REPOSTED
 
@@ -180,7 +171,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             }
             setText(stringId)
         }
-        postViewHolder.shareButton.apply {
+        shareButton.apply {
             setOnClickListener {
                 val sendIntent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
@@ -197,38 +188,38 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         }
 
         if (collection.subdomain != null) {
-            postViewHolder.authorshipLayout.visibility = View.GONE
+            authorshipLayout.visibility = View.GONE
         } else {
             val group = post.group
 
-            postViewHolder.authorshipLayout.visibility = View.VISIBLE
+            authorshipLayout.visibility = View.VISIBLE
 
-            postViewHolder.authorNameTextView.text = post.author.name
-            postViewHolder.authorImageView.setImageURI(post.author.imageUri, null)
-            postViewHolder.authorLayout.setOnClickListener {
+            authorNameTextView.text = post.author.name
+            authorImageView.setImageURI(post.author.imageUri, null)
+            authorLayout.setOnClickListener {
                 val collection = SubdomainPostCollection(post.author.name)
                 activity.setActivePostsFragment(collection, true)
             }
 
             if (group != null) {
-                postViewHolder.groupLayout.visibility = View.VISIBLE
-                postViewHolder.groupNameTextView.text = group.name
-                postViewHolder.groupImageView.setImageURI(group.imageUri, null)
-                postViewHolder.groupLayout.setOnClickListener {
+                groupLayout.visibility = View.VISIBLE
+                groupNameTextView.text = group.name
+                groupImageView.setImageURI(group.imageUri, null)
+                groupLayout.setOnClickListener {
                     val collection = SubdomainPostCollection(group.name)
                     activity.setActivePostsFragment(collection, true)
                 }
             } else {
-                postViewHolder.groupLayout.visibility = View.GONE
+                groupLayout.visibility = View.GONE
             }
         }
     }
 
-    override fun getItemCount(): Int = posts.size + if (shouldShowMessageCard()) 1 else 0
+    override fun getItemCount(): Int = posts.size + if (shouldShowLoadingCard()) 1 else 0
 
     override fun getItemViewType(position: Int) = when {
-        shouldShowMessageCard() && position == posts.size -> Post.Content.Type.values().size
-        else -> Post.Content.Type.values().indexOf(posts[position].content.type)
+        shouldShowLoadingCard() && position == posts.size -> ViewTypeLoading
+        else -> posts[position].content.type.ordinal
     }
 
     fun maybeLoadMore(visibleItemPosition: Int) {
@@ -272,7 +263,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         }
     }
 
-    private fun shouldShowMessageCard() = isLoading || lastPostsLoadError != null
+    private fun shouldShowLoadingCard() = isLoading || lastPostsLoadError != null
 
     private fun showErrorToast(error: Api.Response.Error) {
         val msg = activity.getString(R.string.network_error, error.details)

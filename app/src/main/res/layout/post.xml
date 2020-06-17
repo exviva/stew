@@ -83,6 +83,7 @@
                     android:id="@+id/postImageView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:visibility="gone"
                     fresco:failureImage="@android:drawable/ic_menu_report_image"
                     fresco:retryImage="@android:drawable/ic_menu_rotate" />
 
@@ -90,14 +91,16 @@
                     android:id="@+id/postVideoView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center" />
+                    android:layout_gravity="center"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/otherTextView"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:textSize="16sp"
                     android:gravity="center"
+                    android:visibility="gone"
+                    android:textSize="16sp"
                     android:padding="16dp" />
 
             </FrameLayout>
