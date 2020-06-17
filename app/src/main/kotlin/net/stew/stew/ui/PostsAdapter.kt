@@ -11,10 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ProgressBarDrawable
 import com.facebook.drawee.view.SimpleDraweeView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.stew.stew.Api
 import net.stew.stew.Application
 import net.stew.stew.R
@@ -245,7 +242,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     override fun getItemViewType(position: Int) = if (shouldShowMessageCard() && position == posts.size) 1 else 0
 
     fun maybeLoadMore(visibleItemPosition: Int) {
-        if (posts.size - visibleItemPosition in 1..9) {
+        if (!isLoading && posts.size - visibleItemPosition in 1..9) {
             load()
         }
     }
