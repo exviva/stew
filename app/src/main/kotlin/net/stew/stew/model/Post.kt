@@ -14,7 +14,7 @@ class Post(val id: Int,
     val contentUri = content.uri
 
     class Content(url: String, val type: Type, val text: String = "") {
-        val uri = Uri.parse(url)
+        val uri = Uri.parse(url)!!
 
         enum class Type {
             Image,
