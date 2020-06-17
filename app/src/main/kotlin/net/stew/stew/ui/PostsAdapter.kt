@@ -25,9 +25,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
-        val postVideoContainer: View = itemView.findViewById(R.id.postVideoContainer)
         val postVideoView = itemView.findViewById(R.id.postVideoView) as VideoView
-        val playVideoButton = itemView.findViewById(R.id.playVideoButton) as ImageButton
         val otherTextView = itemView.findViewById(R.id.otherTextView) as TextView
         val repostButton = itemView.findViewById(R.id.repostButton) as Button
         val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
@@ -56,7 +54,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     private var isLoading = false
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == 1) {
+        if (viewType == Post.Content.Type.values().size) {
             val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.loading, viewGroup, false)
 
             return LoadingViewHolder(view).apply {
@@ -67,12 +65,14 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
 
         return PostViewHolder(view).apply {
-            val drawable = ProgressBarDrawable().apply {
-                color = ContextCompat.getColor(activity, R.color.accent)
-                barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
-            }
+            if (viewType == Post.Content.Type.values().indexOf(Post.Content.Type.Image)) {
+                val drawable = ProgressBarDrawable().apply {
+                    color = ContextCompat.getColor(activity, R.color.accent)
+                    barWidth = activity.resources.getDimensionPixelSize(R.dimen.image_progress_bar_height)
+                }
 
-            postImageView.hierarchy.setProgressBarImage(drawable)
+                postImageView.hierarchy.setProgressBarImage(drawable)
+            }
         }
     }
 
@@ -115,27 +115,14 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             }
         }
 
-        postViewHolder.postVideoContainer.apply {
+        postViewHolder.postVideoView.apply {
             if (post.type == Post.Content.Type.Video) {
                 visibility = View.VISIBLE
 
-                postViewHolder.postVideoView.apply {
-                    val playButton = postViewHolder.playVideoButton
-                    val listener: (v: View) -> Unit = {
-                        if (isPlaying) {
-                            pause()
-                            playButton.visibility = View.VISIBLE
-                        } else {
-                            start()
-                            playButton.visibility = View.GONE
-                        }
-                    }
-
-                    playButton.visibility = View.VISIBLE
+                if (tag != post.contentUri) {
                     setVideoURI(post.contentUri)
-                    setOnClickListener(listener)
-                    playButton.setOnClickListener(listener)
-                    setOnCompletionListener { playButton.visibility = View.VISIBLE }
+                    tag = post.contentUri
+                    setMediaController(MediaController(activity))
                 }
             } else {
                 visibility = View.GONE
@@ -239,7 +226,10 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
 
     override fun getItemCount(): Int = posts.size + if (shouldShowMessageCard()) 1 else 0
 
-    override fun getItemViewType(position: Int) = if (shouldShowMessageCard() && position == posts.size) 1 else 0
+    override fun getItemViewType(position: Int) = when {
+        shouldShowMessageCard() && position == posts.size -> Post.Content.Type.values().size
+        else -> Post.Content.Type.values().indexOf(posts[position].content.type)
+    }
 
     fun maybeLoadMore(visibleItemPosition: Int) {
         if (!isLoading && posts.size - visibleItemPosition in 1..9) {
