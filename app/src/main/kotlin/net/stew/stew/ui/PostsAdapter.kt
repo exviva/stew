@@ -102,7 +102,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     }
 
     private fun onBindPostViewHolder(post: Post, viewHolder: PostViewHolder) = viewHolder.apply {
-        when (post.content.type) {
+        when (post.contentType) {
             Post.Content.Type.Image -> postImageView.apply {
                 if (tag != post.contentUri) {
                     tag = post.contentUri
@@ -219,7 +219,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
 
     override fun getItemViewType(position: Int) = when {
         shouldShowLoadingCard() && position == posts.size -> ViewTypeLoading
-        else -> posts[position].content.type.ordinal
+        else -> posts[position].contentType.ordinal
     }
 
     fun maybeLoadMore(visibleItemPosition: Int) {

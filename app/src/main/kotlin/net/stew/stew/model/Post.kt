@@ -10,7 +10,7 @@ class Post(val id: Int,
            val group: Group?,
            var repostState: RepostState) {
 
-    val type = content.type
+    val contentType = content.type
     val contentUri = content.uri
 
     class Content(url: String, val type: Type, val text: String = "") {
