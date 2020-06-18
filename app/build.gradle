@@ -7,8 +7,8 @@ android {
 
     defaultConfig {
         applicationId "net.stew.stew"
-        minSdkVersion 15
-        targetSdkVersion 28
+        minSdkVersion 23
+        targetSdkVersion 29
         versionCode 26
         versionName "0.16.0"
     }
