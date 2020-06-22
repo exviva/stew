@@ -195,19 +195,17 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             authorshipLayout.visibility = View.VISIBLE
 
             authorNameTextView.text = post.author.name
-            authorImageView.setImageURI(post.author.imageUri, null)
+            authorImageView.setImageURI(post.author.imageUri)
             authorLayout.setOnClickListener {
-                val collection = SubdomainPostCollection(post.author.name)
-                activity.setActivePostsFragment(collection, true)
+                activity.setActivePostsFragment(SubdomainPostCollection(post.author.name))
             }
 
             if (group != null) {
                 groupLayout.visibility = View.VISIBLE
                 groupNameTextView.text = group.name
-                groupImageView.setImageURI(group.imageUri, null)
+                groupImageView.setImageURI(group.imageUri)
                 groupLayout.setOnClickListener {
-                    val collection = SubdomainPostCollection(group.name)
-                    activity.setActivePostsFragment(collection, true)
+                    activity.setActivePostsFragment(SubdomainPostCollection(group.name))
                 }
             } else {
                 groupLayout.visibility = View.GONE

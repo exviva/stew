@@ -26,19 +26,21 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
         navigationView.setOnNavigationItemSelectedListener(this)
     }
 
-    fun setActivePostsFragment(collection: PostCollection, addToBackStack: Boolean = false) {
+    fun setActivePostsFragment(collection: PostCollection) {
         val fragment =
-                if (collection.isPredefined()) postsFragments.getOrPut(collection) { PostsFragment.newInstance(collection) }
+                if (collection.isPredefined()) postsFragments.getOrPut(collection) {
+                    PostsFragment.newInstance(collection)
+                }
                 else PostsFragment.newInstance(collection)
 
-        setActiveFragment(fragment, addToBackStack)
+        setActiveFragment(fragment)
     }
 
-    private fun setActiveFragment(fragment: Fragment, addToBackStack: Boolean) {
+    private fun setActiveFragment(fragment: Fragment) {
         supportFragmentManager.beginTransaction().run {
             replace(R.id.fragmentContainer, fragment)
 
-            if (addToBackStack) {
+            if (fragment != aboutFragment && !postsFragments.containsValue(fragment)) {
                 addToBackStack(null)
             }
 
@@ -56,7 +58,7 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
             R.id.fof -> setActivePostsFragment(PostCollection.FOF)
             R.id.everyone -> setActivePostsFragment(PostCollection.Everyone)
             R.id.me -> setActivePostsFragment(PostCollection.Me)
-            R.id.about -> setActiveFragment(aboutFragment, false)
+            R.id.about -> setActiveFragment(aboutFragment)
         }
 
         return true
