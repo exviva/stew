@@ -7,30 +7,34 @@ import android.text.TextWatcher
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import kotlinx.android.synthetic.main.activity_login.*
 import kotlinx.coroutines.launch
 import net.stew.stew.Api
 import net.stew.stew.Application
 import net.stew.stew.R
+import net.stew.stew.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_login)
+        binding = ActivityLoginBinding.inflate(layoutInflater).apply {
+            userNameEditText.setText((application as Application).previousUserName)
+            userNameEditText.addTextChangedListener(textWatcher)
+            passwordEditText.addTextChangedListener(textWatcher)
+            logInButton.setOnClickListener { logIn() }
 
-        userNameEditText.setText((application as Application).previousUserName)
-        userNameEditText.addTextChangedListener(textWatcher)
-        passwordEditText.addTextChangedListener(textWatcher)
-        logInButton.setOnClickListener { logIn() }
+            if (userNameEditText.text.isNotEmpty()) {
+                passwordEditText.requestFocus()
+            }
 
-        if (userNameEditText.text.isNotEmpty()) {
-            passwordEditText.requestFocus()
+            setContentView(root)
         }
     }
 
-    private fun logIn() {
+    private fun logIn() = binding.apply {
         val userName = userNameEditText.text.toString()
         val password = passwordEditText.text.toString()
         val application = application as Application
@@ -57,17 +61,19 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun handleResponseError(message: String) {
+    private fun handleResponseError(message: String) = binding.apply {
         logInButton.isEnabled = true
         logInButton.setText(R.string.log_in)
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+        Toast.makeText(this@LoginActivity, message, Toast.LENGTH_SHORT).show()
     }
 
     private val textWatcher = object : TextWatcher {
         override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            val userNamePresent = userNameEditText.text.isNotEmpty()
-            val passwordPresent = passwordEditText.text.isNotEmpty()
-            logInButton.isEnabled = userNamePresent && passwordPresent
+            binding.apply {
+                val userNamePresent = userNameEditText.text.isNotEmpty()
+                val passwordPresent = passwordEditText.text.isNotEmpty()
+                logInButton.isEnabled = userNamePresent && passwordPresent
+            }
         }
 
         override fun afterTextChanged(s: Editable?) {}

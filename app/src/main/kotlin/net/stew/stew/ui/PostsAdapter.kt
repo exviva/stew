@@ -10,11 +10,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.drawee.drawable.ProgressBarDrawable
-import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.coroutines.launch
 import net.stew.stew.Api
 import net.stew.stew.Application
 import net.stew.stew.R
+import net.stew.stew.databinding.LoadingBinding
+import net.stew.stew.databinding.PostBinding
 import net.stew.stew.model.Post
 import net.stew.stew.model.PostCollection
 import net.stew.stew.model.SubdomainPostCollection
@@ -26,30 +27,8 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
         val ViewTypeLoading = Post.Content.Type.values().size
     }
 
-    class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val postImageView = itemView.findViewById(R.id.postImageView) as SimpleDraweeView
-        val postVideoView = itemView.findViewById(R.id.postVideoView) as VideoView
-        val otherTextView = itemView.findViewById(R.id.otherTextView) as TextView
-        val repostButton = itemView.findViewById(R.id.repostButton) as Button
-        val shareButton = itemView.findViewById(R.id.shareButton) as ImageButton
-        val authorshipLayout: View = itemView.findViewById(R.id.authorshipLayout)
-        val authorLayout: View = itemView.findViewById(R.id.authorLayout)
-        val authorNameTextView = itemView.findViewById(R.id.authorNameTextView) as TextView
-        val authorImageView = itemView.findViewById(R.id.authorImageView) as SimpleDraweeView
-        val groupLayout: View = itemView.findViewById(R.id.groupLayout)
-        val groupNameTextView = itemView.findViewById(R.id.groupNameTextView) as TextView
-        val groupImageView = itemView.findViewById(R.id.groupImageView) as SimpleDraweeView
-        val description = itemView.findViewById(R.id.descriptionTextView) as TextView
-
-    }
-
-    class LoadingViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-        val messageTextView = itemView.findViewById(R.id.messageTextView) as TextView
-        val retryButton = itemView.findViewById(R.id.retryButton) as Button
-
-    }
+    class PostViewHolder(val binding: PostBinding) : RecyclerView.ViewHolder(binding.root)
+    class LoadingViewHolder(val binding: LoadingBinding) : RecyclerView.ViewHolder(binding.root)
 
     private val application = activity.application as Application
     private var posts = application.postsStore.restore(collection)
@@ -57,18 +36,12 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     private var lastPostsLoadError: Api.Response.Error? = null
     private var isLoading = false
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        if (viewType == ViewTypeLoading) {
-            val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.loading, viewGroup, false)
-
-            return LoadingViewHolder(view).apply {
-                retryButton.setOnClickListener { load() }
-            }
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int) = when (viewType) {
+        ViewTypeLoading -> LoadingBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false).run {
+            retryButton.setOnClickListener { load() }
+            LoadingViewHolder(this)
         }
-
-        val view = LayoutInflater.from(viewGroup.context).inflate(R.layout.post, viewGroup, false)
-
-        return PostViewHolder(view).apply {
+        else -> PostBinding.inflate(LayoutInflater.from(viewGroup.context), viewGroup, false).run {
             when (viewType) {
                 Post.Content.Type.Image.ordinal -> postImageView.apply {
                     visibility = View.VISIBLE
@@ -80,28 +53,26 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
                 Post.Content.Type.Video.ordinal -> postVideoView.visibility = View.VISIBLE
                 Post.Content.Type.Other.ordinal -> otherTextView.visibility = View.VISIBLE
             }
+            PostViewHolder(this)
         }
     }
 
     override fun onBindViewHolder(viewHolder: RecyclerView.ViewHolder, position: Int) {
-        if (position == posts.size && shouldShowLoadingCard()) {
-            onBindLoadingViewHolder(viewHolder as LoadingViewHolder)
-        } else {
-            onBindPostViewHolder(posts[position], viewHolder as PostViewHolder)
+        when (viewHolder) {
+            is LoadingViewHolder -> onBindLoadingViewHolder(viewHolder)
+            is PostViewHolder -> onBindPostViewHolder(posts[position], viewHolder)
         }
     }
 
-    private fun onBindLoadingViewHolder(viewHolder: LoadingViewHolder) = viewHolder.apply {
-        messageTextView.apply {
-            text = lastPostsLoadError?.details
-                    ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
-                            ?: activity.getString(R.string.loading)
-        }
+    private fun onBindLoadingViewHolder(viewHolder: LoadingViewHolder) = viewHolder.binding.apply {
+        messageTextView.text = lastPostsLoadError?.details
+                ?: retriesLeft?.let { activity.getString(R.string.loading_with_retry, it) }
+                        ?: activity.getString(R.string.loading)
 
         retryButton.visibility = if (lastPostsLoadError == null) View.GONE else View.VISIBLE
     }
 
-    private fun onBindPostViewHolder(post: Post, viewHolder: PostViewHolder) = viewHolder.apply {
+    private fun onBindPostViewHolder(post: Post, viewHolder: PostViewHolder) = viewHolder.binding.apply {
         when (post.contentType) {
             Post.Content.Type.Image -> postImageView.apply {
                 if (tag != post.contentUri) {
@@ -132,7 +103,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
             }
         }
 
-        description.apply {
+        descriptionTextView.apply {
             visibility = if (post.description.isBlank()) View.GONE else View.VISIBLE
             text = post.description
         }

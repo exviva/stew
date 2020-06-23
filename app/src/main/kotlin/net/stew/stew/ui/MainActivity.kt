@@ -5,9 +5,9 @@ import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import kotlinx.android.synthetic.main.activity_main.*
 import net.stew.stew.Application
 import net.stew.stew.R
+import net.stew.stew.databinding.ActivityMainBinding
 import net.stew.stew.model.PostCollection
 
 class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemSelectedListener {
@@ -16,14 +16,18 @@ class MainActivity : AppCompatActivity(), BottomNavigationView.OnNavigationItemS
     private val aboutFragment = AboutFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
         if (!(application as Application).requireCurrentSession()) {
             finish()
         }
 
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        ActivityMainBinding.inflate(layoutInflater).apply {
+            navigationView.setOnNavigationItemSelectedListener(this@MainActivity)
+            setContentView(root)
+        }
+
         setActivePostsFragment(PostCollection.Friends)
-        navigationView.setOnNavigationItemSelectedListener(this)
     }
 
     fun setActivePostsFragment(collection: PostCollection) {

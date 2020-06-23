@@ -7,8 +7,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.view.View
 import com.facebook.drawee.backends.pipeline.Fresco
-import kotlinx.android.synthetic.main.activity_fullscreen_image.*
-import net.stew.stew.R
+import net.stew.stew.databinding.ActivityFullscreenImageBinding
 
 class FullscreenImageActivity : Activity() {
 
@@ -28,15 +27,17 @@ class FullscreenImageActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setContentView(R.layout.activity_fullscreen_image)
+        ActivityFullscreenImageBinding.inflate(layoutInflater).apply {
+            imageView.apply {
+                controller = Fresco
+                        .newDraweeControllerBuilder()
+                        .setUri(intent.getParcelableExtra<Uri>("uri"))
+                        .setAutoPlayAnimations(true)
+                        .build()
+                setOnClickListener { finishAfterTransition() }
 
-        imageView.apply {
-            controller = Fresco
-                    .newDraweeControllerBuilder()
-                    .setUri(intent.getParcelableExtra<Uri>("uri"))
-                    .setAutoPlayAnimations(true)
-                    .build()
-            setOnClickListener { finishAfterTransition() }
+            }
+            setContentView(root)
         }
     }
 
