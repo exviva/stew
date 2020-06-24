@@ -31,7 +31,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
     class LoadingViewHolder(val binding: LoadingBinding) : RecyclerView.ViewHolder(binding.root)
 
     private val application = activity.application as Application
-    private var posts = application.postsStore.restore(collection)
+    private var posts = application.postRepository.restore(collection)
     private var retriesLeft: Int? = null
     private var lastPostsLoadError: Api.Response.Error? = null
     private var isLoading = false
@@ -217,7 +217,7 @@ class PostsAdapter(private val activity: MainActivity, private val collection: P
                 is Api.Response.Success -> {
                     posts = posts + res.data
 
-                    application.postsStore.store(collection, posts)
+                    application.postRepository.store(collection, posts)
                 }
                 is Api.Response.Error -> {
                     lastPostsLoadError = res

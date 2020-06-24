@@ -3,7 +3,7 @@ package net.stew.stew
 import android.content.Context
 import android.content.Intent
 import com.facebook.drawee.backends.pipeline.Fresco
-import net.stew.stew.model.PostsStore
+import net.stew.stew.model.PostRepository
 import net.stew.stew.ui.LoginActivity
 
 class Application : android.app.Application() {
@@ -11,7 +11,7 @@ class Application : android.app.Application() {
     var currentSession: CurrentSession? = null
     var previousUserName: String? = null
     val api = Api(this)
-    val postsStore = PostsStore()
+    val postRepository = PostRepository()
 
     override fun onCreate() {
         super.onCreate()
@@ -33,7 +33,7 @@ class Application : android.app.Application() {
 
     fun logOut() {
         api.clear()
-        postsStore.clear()
+        postRepository.clear()
         currentSession = null
         getPreferences().edit().
             remove("userIdCookie").
